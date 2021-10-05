@@ -26,7 +26,7 @@
 #define LED_CTRL_ALARM_DRIVE_LOSS   4 // Means no PWM order received, failsafe (White blinking fast)
 
 // default PWN output if RC signal loss or ROS loss
-#define PWN_out_throttle_Failsafe 1000
+#define PWN_out_throttle_Failsafe 1500
 #define PWN_out_steering_Failsafe 1500 
 
 // Battery Low VOltage
@@ -80,7 +80,7 @@ void loop() {
   static unsigned int _cnt=0;
   unsigned long tsStart;
   unsigned long tsEnd;
-  int throttleIn=1000;
+  int throttleIn=1500;
   int steeringIn=1500;
 
   _cnt++;
