@@ -4,7 +4,7 @@ This Hat provides various interfaces between SBC and hardware to easely build an
 A typical example of such build is the [Donkey car](https://www.donkeycar.com/)
 
 The Hat features :
-- LM2596 or based DC/DC converter to power everything from a single battery (7-15V, NiMh or LiPo 2S/3S), through GPIO or through dedicated connector.
+- LM2596 or xl4005 DSN5000 based DC/DC converter to power everything from a single battery (7-15V, NiMh or LiPo 2S/3S), through GPIO or through dedicated connector.
 - Battery voltage monitoring (battery level and cell level for LiPo)
 - PWM output signal to control Throttle (through ESC) and STeering (through Servo)
 - PWM input signal acquisition of RC Receiver
