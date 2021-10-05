@@ -64,7 +64,7 @@ void _update_alarm(unsigned char alarm) {
     _setLed (0xff,0x7f,0,0xaaaa);    
   }else if (alarm & (unsigned char )(1<<LED_CTRL_ALARM_RX_LOSS)) {
     _setLed (0,0,127,0xaaaa);    
-  }else if (alarm & (unsigned char )(1<<LED_CTRL_ALARM_ROS_LOSS)) {
+  }else if (alarm & (unsigned char )(1<<LED_CTRL_ALARM_LINK_LOSS)) {
     _setLed (0,127,0,0xaaaa);        
   }else if (alarm & (unsigned char )(1<<LED_CTRL_ALARM_DRIVE_LOSS)) {
     _setLed (127,127,127,0xaaaa);        

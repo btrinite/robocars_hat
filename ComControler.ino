@@ -25,7 +25,7 @@ std_msgs::Int16MultiArray channels_msg;
 std_msgs::Int16MultiArray lipo_msg;  
 std_msgs::Int16MultiArray sensors_msg;  
 ros::Publisher pub_channels( "radio_channels", &channels_msg);
-ros::Publisher pub_lipo( "lipo", &lipo_msg);
+ros::Publisher pub_lipo( "battery", &lipo_msg);
 ros::Publisher pub_sensors( "sensors", &sensors_msg);
 
 void publish_lipo_state (int vbatmv, int cell1mv, int cell2mv, int cell3mv) {
@@ -73,13 +73,13 @@ void com_controler_update() {
   if (!nh.connected()) {
     _com_controler_status = 0;
     if (alarmRaised==0) {
-      led_controler_set_alarm(LED_CTRL_ALARM_ROS_LOSS);    
+      led_controler_set_alarm(LED_CTRL_ALARM_LINK_LOSS);    
       alarmRaised=1;
     }
   } else {
     _com_controler_status = 1;
     if (alarmRaised==1) {
-      led_controler_reset_alarm(LED_CTRL_ALARM_ROS_LOSS);
+      led_controler_reset_alarm(LED_CTRL_ALARM_LINK_LOSS);
       alarmRaised=0;
     }
   }

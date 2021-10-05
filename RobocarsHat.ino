@@ -22,7 +22,7 @@
 #define LED_CTRL_ALARM_BATTERY_LOW  0 // Means that battery voltage is low (Red inversed 2 flash blinking each half second) 
 #define LED_CTRL_ALARM_STARTUP      1 // Means that Arduino just started/restarted (Orange blinking fast)
 #define LED_CTRL_ALARM_RX_LOSS      2 // Means PCM RX Signal not detected/loss (Blue blinking fast)
-#define LED_CTRL_ALARM_ROS_LOSS     3 // Means ROS not connected/disconnected (Green blinking fast)
+#define LED_CTRL_ALARM_LINK_LOSS     3 // Means ROS not connected/disconnected (Green blinking fast)
 #define LED_CTRL_ALARM_DRIVE_LOSS   4 // Means no PWM order received, failsafe (White blinking fast)
 
 // default PWN output if RC signal loss or ROS loss
