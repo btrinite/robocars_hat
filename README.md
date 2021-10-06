@@ -13,6 +13,7 @@ The Hat features :
 - 2 pre-wired Aux channels
 - High Speed data link (Serial 1Mbps) between Hat and SBC 
 - RBG Led to display status, including Alarm on low battery voltage, loss of receiver, loss of link to SBC, loss of active driving 
+- RGB Led output to control more WS2812B LEDs 
 - Faisafe (Force output PWM to neutral signal in case of alarm)
 
 Communication between Hat and SBC is based on ROS and ROSSerial.
@@ -31,4 +32,4 @@ Needed dependencies :
 The PWM sampling part of the software is largely inspired from Kelvin Nelson work, available [here](https://create.arduino.cc/projecthub/kelvineyeone/read-pwm-decode-rc-receiver-input-and-apply-fail-safe-6b90eb)
 
 Code has been optimized to fit into the Arduino pro mini.
-Very few free memory is currently available (197 Byte), but this is enough to work like a charm.
+Once startedm very few free memory is currently available (183 Byte), but this is enough to work like a charm.

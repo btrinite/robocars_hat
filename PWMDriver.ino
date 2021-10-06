@@ -7,19 +7,29 @@ unsigned int _pwm_received = 0;
 Servo throttle_servo;  // create servo object to control a servo
 Servo steering_servo;  // create servo object to control a servo
 
-void pwmdriver_set_throttle_output (int periodus)
+void _pwmdriver_set_throttle_output (int periodus)
 {
-  _pwm_received++;
   if (failsafe==0) {
     throttle_servo.writeMicroseconds(periodus);
   }
 }
 
-void pwmdriver_set_steering_output (int periodus)
+void _pwmdriver_set_steering_output (int periodus)
 {
   if (failsafe==0) {
     steering_servo.writeMicroseconds(periodus);
   }
+}
+
+void pwmdriver_set_throttle_output (int periodus)
+{
+  _pwm_received++;
+  _pwmdriver_set_throttle_output (periodus);
+}
+
+void pwmdriver_set_steering_output (int periodus)
+{
+  _pwmdriver_set_steering_output (periodus);
 }
 
 void pwmdriver_setup(int throttle_pin, int steering_pin)
@@ -30,9 +40,11 @@ void pwmdriver_setup(int throttle_pin, int steering_pin)
 
 void pwmdriver_check_failsafe() {
   // mostly for faisafe check
-  if ((_pwm_received==0) && (drive_loss==0)) {
-    led_controler_set_alarm(LED_CTRL_ALARM_DRIVE_LOSS);
-    drive_loss=1;
+  if (drive_loss==0) {
+    if (_pwm_received==0) {
+      led_controler_set_alarm(LED_CTRL_ALARM_DRIVE_LOSS);
+      drive_loss=1;  
+    }
   } else {
     if (_pwm_received > 0) {
       led_controler_reset_alarm(LED_CTRL_ALARM_DRIVE_LOSS);
@@ -41,8 +53,8 @@ void pwmdriver_check_failsafe() {
   }
   _pwm_received = 0;
   if (!com_controler_check_status() || (rx_loss==1) || (drive_loss==1) || (battery_low==1)) {
-    pwmdriver_set_throttle_output (PWN_out_throttle_Failsafe);
-    pwmdriver_set_steering_output (PWN_out_steering_Failsafe);  
+    _pwmdriver_set_throttle_output (PWN_out_throttle_Failsafe);
+    _pwmdriver_set_steering_output (PWN_out_steering_Failsafe);  
     failsafe = 1;
   } else {
     failsafe = 0;
@@ -91,19 +103,29 @@ void setPwmFrequency(int pin, int divisor) {
    }
 }
 
-void pwmdriver_set_throttle_output (int durationNs)
+void _pwmdriver_set_throttle_output (int durationNs)
 {
-  _pwm_received++;
   if (failsafe==0) {
     analogWrite(_throttle_pin, int(durationNs / PWM_stepNs));
   }
 }
 
-void pwmdriver_set_steering_output (int durationNs)
+void _pwmdriver_set_steering_output (int durationNs)
 {
   if (failsafe == 0) {
     analogWrite(_steering_pin, int(durationNs / PWM_stepNs)); 
   }
+}
+
+void pwmdriver_set_throttle_output (int durationNs)
+{
+  _pwm_received++;
+  _pwmdriver_set_throttle_output (durationNs);
+}
+
+void pwmdriver_set_steering_output (int durationNs)
+{
+  _pwmdriver_set_steering_output(durationNs)
 }
 
 void pwmdriver_setup(int throttle_pin, int steering_pin)
@@ -119,9 +141,11 @@ void pwmdriver_setup(int throttle_pin, int steering_pin)
 
 void pwmdriver_check_failsafe() {
   // mostly for faisafe check
-  if ((_pwm_received==0) && (drive_loss==0)) {
-    led_controler_set_alarm(LED_CTRL_ALARM_DRIVE_LOSS);
-    drive_loss=1;
+  if (drive_loss==0) {
+    if (_pwm_received==0) {
+      led_controler_set_alarm(LED_CTRL_ALARM_DRIVE_LOSS);
+      drive_loss=1;  
+    }
   } else {
     if (_pwm_received > 0) {
       led_controler_reset_alarm(LED_CTRL_ALARM_DRIVE_LOSS);
@@ -130,8 +154,8 @@ void pwmdriver_check_failsafe() {
   }
   _pwm_received = 0;
   if (!com_controler_check_status() || (rx_loss==1) || (drive_loss==1) || (battery_low==1)) {
-    pwmdriver_set_throttle_output (PWN_out_throttle_Failsafe);
-    pwmdriver_set_steering_output (PWN_out_steering_Failsafe);  
+    _pwmdriver_set_throttle_output (PWN_out_throttle_Failsafe);
+    _pwmdriver_set_steering_output (PWN_out_steering_Failsafe);  
     failsafe = 1;
   } else {
     failsafe = 0;

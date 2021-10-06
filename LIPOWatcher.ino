@@ -14,6 +14,24 @@ void LIPO_watcher_setup() {
 #define LIPO_CELL_LOW_VOLTAGE 3200
 #define VBAT_LOW_VOLTAGE 5500
 
+unsigned char battery_alarm_records=0;
+unsigned char idx_alarm_record=0;
+
+void record_battery_alarm (unsigned char alarm) {
+  if (alarm==1) {
+    battery_alarm_records |= (1<<idx_alarm_record);
+  } else {
+    battery_alarm_records &= ~(1<<idx_alarm_record);
+  }
+  idx_alarm_record=(idx_alarm_record+1)%8;
+}
+
+void evaluate_low_battery() {
+  if (battery_alarm_records == 0xff) {
+    battery_low=1;
+  }
+}
+
 void LIPO_watcher_update() {
   // read the value from the sensor:
   cell1Raw = analogRead(batteryCell1Pin);
@@ -26,38 +44,40 @@ void LIPO_watcher_update() {
 
     //Global VBat
     if (vbatmv<VBAT_LOW_VOLTAGE) {
-      battery_low=1;
+      record_battery_alarm(1);
     }
 
     //Is there a Lipo load balance connected
     if (cell1mv>100) {
       // Cell1
       if (cell1mv<LIPO_CELL_LOW_VOLTAGE) {
-        battery_low=1;       
+        record_battery_alarm(1);       
       }            
 
       if (cell2mv < 100) {
         //2S, 2nd cell
         if ((vbatmv-cell1mv)<LIPO_CELL_LOW_VOLTAGE) {
-          battery_low=1;       
+          record_battery_alarm(1);       
         }
       }
       else {
         //3S, 2nd cell
         if ((cell2mv-cell1mv)<LIPO_CELL_LOW_VOLTAGE) {
-          battery_low=1;       
+          record_battery_alarm(1);       
         }
         //3rd cell
         if ((vbatmv-cell2mv)<LIPO_CELL_LOW_VOLTAGE) {
-          battery_low=1;       
+          record_battery_alarm(1);       
         }
       }
     }
+
+    evaluate_low_battery();
     if (battery_low==1) {
       led_controler_set_alarm(LED_CTRL_ALARM_BATTERY_LOW);
     }
   }
-
+  
   //Publish Lipo state
   if (cell1mv < 100) {
     //Simple battery/power supply, no cells to monitor

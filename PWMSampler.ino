@@ -412,9 +412,11 @@ void pwm_sampler_update (int *throttle, int *steering) {
 }
 
 void pwm_sampler_check_failsafe () {
-  if ((_rx_received ==0) && (rx_loss==0)) {
-    led_controler_set_alarm(LED_CTRL_ALARM_RX_LOSS);
-    rx_loss = 1;    
+  if (rx_loss==0) {
+    if (_rx_received ==0) {
+      led_controler_set_alarm(LED_CTRL_ALARM_RX_LOSS);
+      rx_loss = 1;      
+    }
   } else {
     if (_rx_received > 0) {
       led_controler_reset_alarm(LED_CTRL_ALARM_RX_LOSS);    
