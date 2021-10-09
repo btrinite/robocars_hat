@@ -1,6 +1,7 @@
 
-// This is a specific version of ROSSerial, please check ...
-#define Use_ROS
+// Select communication protocole to use (Use_ROSSerial for ROS topics overs serial, Use_SLIPSerial for SLIP over serial)
+//#define Use_ROSSerial
+#define Use_SimpleSerial
 
 // We user Servo arduino library to drive PWM output since it offers better resolution than simple analogWrite.
 // However we did a little change compared to original version (from here : https://github.com/arduino-libraries/Servo),
@@ -75,7 +76,7 @@ void setup (void) {
   //Serial.begin(115200);
   led_controler_set_alarm(LED_CTRL_ALARM_STARTUP);
 }
-
+/*
 void loop() {
   static unsigned int _cnt=0;
   unsigned long tsStart;
@@ -117,4 +118,52 @@ void loop() {
   if ((tsEnd>=tsStart) && ((tsEnd-tsStart)<=10)) {
     delay(10-(tsEnd-tsStart)); // delais until next 100Hz tick
   }
+}
+*/
+
+void loop() {
+  static unsigned int _cnt=0;
+  static unsigned long lastTsStart = 0;
+  unsigned long tsStart = 0;
+  int throttleIn=1500;
+  int steeringIn=1500;
+
+  tsStart=micros();
+  if (tsStart>=lastTsStart) 
+  {  
+    if ((tsStart-lastTsStart)>=10000)
+    {
+      _cnt++;
+      if (_cnt==500) {
+        led_controler_reset_alarm(LED_CTRL_ALARM_STARTUP);  
+      }
+      //Task to be done at 1Hz
+      if (_cnt%100 == 0) {
+        battery_watcher_update();  
+      }
+      //Task to be done at 10Hz
+      if (_cnt%10 == 0) {
+        led_controler_update();
+        pwmdriver_check_failsafe();
+        pwm_sampler_check_failsafe();
+      }
+      //Task to be done at 30Hz
+      if (_cnt%3 == 0) {
+        sensor_controler_update();
+      }  
+    
+      //Task to be done at 100Hz
+      if (_cnt%1 == 0) {
+        pwm_sampler_update(&throttleIn, &steeringIn);
+        publish_channels_state (throttleIn, steeringIn);
+      }
+      lastTsStart=tsStart;     
+    }
+  } else {
+      // Time counter overflow
+      lastTsStart=tsStart;     
+  }
+
+  //Task to be done as soon as possible
+  com_controler_update();
 }
