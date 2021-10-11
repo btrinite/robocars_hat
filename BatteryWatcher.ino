@@ -2,9 +2,9 @@
 int cell1Raw = 0;  // variable to store the value coming from the sensor
 int cell2Raw = 0;  // variable to store the value coming from the sensor
 int vbatRaw = 0;  // variable to store the value coming from the sensor
-long cell1mv = 0;  // variable to store the value coming from the sensor
-long cell2mv = 0;  // variable to store the value coming from the sensor
-long vbatmv = 0;  // variable to store the value coming from the sensor
+int cell1mv = 0;  // variable to store the value coming from the sensor
+int cell2mv = 0;  // variable to store the value coming from the sensor
+int vbatmv = 0;  // variable to store the value coming from the sensor
 const int divider=11;
 const long unituv=5000000/1024;
 

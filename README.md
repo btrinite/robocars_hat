@@ -10,7 +10,7 @@ The Hat features :
 - LM2596 or xl4005 DSN5000 based DC/DC converter to power everything from a single battery (7-15V, NiMh or LiPo 2S/3S), through GPIO or through dedicated connector.
 - Battery voltage monitoring (battery level and cell level for LiPo)
 - PWM output signal to control Throttle (through ESC) and STeering (through Servo)
-- PWM input signal acquisition of RC Receiver
+- PWM input signal acquisition of RC Receiver (4 channels)
 - Ultra Sonic acquisition
 - RPM sensor acquisition
 - 2 pre-wired Aux channels
@@ -48,6 +48,8 @@ When ROS is used, topics are :
 - /radio_channels : std_msgs::Int16MultiArray
     - data[0] : Int16 : Throttle (signal pulse width in us, expecting value betzeen 1000 and 2000)
     - data[1] : Int16 : Steering (signal pulse width in us, expecting value betzeen 1000 and 2000) 
+    - data[2] : Int16 : Aux1 (signal pulse width in us, expecting value betzeen 1000 and 2000)
+    - data[3] : Int16 : Aux2 (signal pulse width in us, expecting value betzeen 1000 and 2000) 
 - /battery : std_msgs::Int16MultiArray
     - data[0] : Int16 : Vbat : Battery total voltage in mv
     - data[1] : Int16 : Cell1 : LiPo Cell 1 voltage in mv (0 is no Cell detected)
@@ -77,6 +79,8 @@ msg_type, from Hat to Host :
 - 0 : radio channels
     - param1 : int : throttle (signal pulse width in us, expecting value betzeen 1000 and 2000)
     - param2 : int : steering (signal pulse width in us, expecting value betzeen 1000 and 2000) 
+    - param3 : int : Aux1 (signal pulse width in us, expecting value betzeen 1000 and 2000)
+    - param4 : int : Aux2 (signal pulse width in us, expecting value betzeen 1000 and 2000) 
 - 1 : battery state
     - param1 : Int : Vbat : Battery total voltage in mv
     - param2 : Int : Cell1 : LiPo Cell 1 voltage in mv (0 is no Cell detected)

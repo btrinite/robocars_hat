@@ -9,7 +9,7 @@
 #define Use_Servo
 
 // ROS, if used, define serial speed
-#ifdef Use_ROS
+#ifdef Use_ROSSerial
 
 #define ROSSERIAL_BAUD 1000000 
 
@@ -42,7 +42,9 @@
 
 // PWM/sensors input, use Pin Change ISR PCINT2_vect
 #define pwmInThrottlePin      6
-#define pwnInSteeringPin      7
+#define pwmInSteeringPin      7
+#define pwmInAux1Pin          8
+#define pwmInAux2Pin          12
 #define USEchoPin             2
 #define RPMSignalPin          4
 
@@ -79,44 +81,51 @@ void setup (void) {
 /*
 void loop() {
   static unsigned int _cnt=0;
-  unsigned long tsStart;
-  unsigned long tsEnd;
+  static unsigned long lastTsStart = 0;
+  unsigned long tsStart = 0;
   int throttleIn=1500;
   int steeringIn=1500;
+  int aux1=1500;
+  int aux2=1500;
 
-  _cnt++;
-  tsStart=millis();
+  tsStart=micros();
 
-  if (_cnt==500) {
-      led_controler_reset_alarm(LED_CTRL_ALARM_STARTUP);  
-  }
-  //Task to be done at 1Hz
-  if (_cnt%100 == 0) {
-    LIPO_watcher_update();  
-  }
-  //Task to be done at 10Hz
-  if (_cnt%10 == 0) {
-    led_controler_update();
-    pwmdriver_check_failsafe();
-    pwm_sampler_check_failsafe();
-  }
-  //Task to be done at 30Hz
-  if (_cnt%3 == 0) {
-    sensor_controler_update();
-  }  
-
-  //Task to be done at 100Hz
-  if (_cnt%1 == 0) {
-    pwm_sampler_update(&throttleIn, &steeringIn);
-    publish_channels_state (throttleIn, steeringIn);
-  }
-
-  //Task to be done at 100Hz
+  //Task to be done as soon as possible
   com_controler_update();
-  
-  tsEnd=millis();
-  if ((tsEnd>=tsStart) && ((tsEnd-tsStart)<=10)) {
-    delay(10-(tsEnd-tsStart)); // delais until next 100Hz tick
+
+  if (tsStart>=lastTsStart) 
+  {  
+    if ((tsStart-lastTsStart)>=10000)
+    {
+      _cnt++;
+      if (_cnt==500) {
+        led_controler_reset_alarm(LED_CTRL_ALARM_STARTUP);  
+      }
+      //Task to be done at 1Hz
+      if (_cnt%100 == 67) {
+        battery_watcher_update();  
+      }
+      //Task to be done at 10Hz
+      if (_cnt%10 == 5) {
+        led_controler_update();
+        pwmdriver_check_failsafe();
+        pwm_sampler_check_failsafe();
+      }
+      //Task to be done at 30Hz
+      if (_cnt%3 == 2) {
+        sensor_controler_update();
+      }  
+    
+      //Task to be done at 100Hz
+      if (_cnt%1 == 0) {
+        pwm_sampler_update(&throttleIn, &steeringIn, &aux1, &aux2);
+        publish_channels_state (throttleIn, steeringIn, aux1, aux2);
+      }
+      lastTsStart=tsStart;     
+    }
+  } else {
+      // Time counter overflow
+      lastTsStart=tsStart;     
   }
 }
 */

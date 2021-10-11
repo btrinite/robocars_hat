@@ -1,5 +1,5 @@
 
-unsigned int _pwm_received = 0;
+unsigned char _pwm_received = 0;
 
 #ifdef Use_Servo
 #include <Servo.h>
@@ -23,7 +23,7 @@ void _pwmdriver_set_steering_output (int periodus)
 
 void pwmdriver_set_throttle_output (int periodus)
 {
-  _pwm_received++;
+  _pwm_received=1;
   _pwmdriver_set_throttle_output (periodus);
 }
 
