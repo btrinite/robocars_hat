@@ -78,7 +78,7 @@ void setup (void) {
   //Serial.begin(115200);
   led_controler_set_alarm(LED_CTRL_ALARM_STARTUP);
 }
-/*
+
 void loop() {
   static unsigned int _cnt=0;
   static unsigned long lastTsStart = 0;
@@ -87,55 +87,6 @@ void loop() {
   int steeringIn=1500;
   int aux1=1500;
   int aux2=1500;
-
-  tsStart=micros();
-
-  //Task to be done as soon as possible
-  com_controler_update();
-
-  if (tsStart>=lastTsStart) 
-  {  
-    if ((tsStart-lastTsStart)>=10000)
-    {
-      _cnt++;
-      if (_cnt==500) {
-        led_controler_reset_alarm(LED_CTRL_ALARM_STARTUP);  
-      }
-      //Task to be done at 1Hz
-      if (_cnt%100 == 67) {
-        battery_watcher_update();  
-      }
-      //Task to be done at 10Hz
-      if (_cnt%10 == 5) {
-        led_controler_update();
-        pwmdriver_check_failsafe();
-        pwm_sampler_check_failsafe();
-      }
-      //Task to be done at 30Hz
-      if (_cnt%3 == 2) {
-        sensor_controler_update();
-      }  
-    
-      //Task to be done at 100Hz
-      if (_cnt%1 == 0) {
-        pwm_sampler_update(&throttleIn, &steeringIn, &aux1, &aux2);
-        publish_channels_state (throttleIn, steeringIn, aux1, aux2);
-      }
-      lastTsStart=tsStart;     
-    }
-  } else {
-      // Time counter overflow
-      lastTsStart=tsStart;     
-  }
-}
-*/
-
-void loop() {
-  static unsigned int _cnt=0;
-  static unsigned long lastTsStart = 0;
-  unsigned long tsStart = 0;
-  int throttleIn=1500;
-  int steeringIn=1500;
 
   tsStart=micros();
   if (tsStart>=lastTsStart) 
@@ -163,8 +114,8 @@ void loop() {
     
       //Task to be done at 100Hz
       if (_cnt%1 == 0) {
-        pwm_sampler_update(&throttleIn, &steeringIn);
-        publish_channels_state (throttleIn, steeringIn);
+        pwm_sampler_update(&throttleIn, &steeringIn, &aux1, &aux2);
+        publish_channels_state (throttleIn, steeringIn, aux1, aux2);
       }
       lastTsStart=tsStart;     
     }
