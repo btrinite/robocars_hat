@@ -158,6 +158,7 @@ String getValue(String data, char separator, int index)
   return found > index ? data.substring(strIndex[0], strIndex[1]) : "";
 }
 
+
 void com_controler_setup() {
   Serial.begin(SERIAL_BAUD);
   Serial.setTimeout(5);

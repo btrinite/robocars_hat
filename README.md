@@ -48,8 +48,8 @@ When ROS is used, topics are :
 - /radio_channels : std_msgs::Int16MultiArray
     - data[0] : Int16 : Throttle (signal pulse width in us, expecting value betzeen 1000 and 2000)
     - data[1] : Int16 : Steering (signal pulse width in us, expecting value betzeen 1000 and 2000) 
-    - data[1] : Int16 : Aux1 (signal pulse width in us, expecting value betzeen 1000 and 2000)
-    - data[2] : Int16 : Aux2 (signal pulse width in us, expecting value betzeen 1000 and 2000) 
+    - data[2] : Int16 : Aux1 (signal pulse width in us, expecting value betzeen 1000 and 2000)
+    - data[3] : Int16 : Aux2 (signal pulse width in us, expecting value betzeen 1000 and 2000) 
 - /battery : std_msgs::Int16MultiArray
     - data[0] : Int16 : Vbat : Battery total voltage in mv
     - data[1] : Int16 : Cell1 : LiPo Cell 1 voltage in mv (0 is no Cell detected)
