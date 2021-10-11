@@ -149,14 +149,16 @@
  
 // PWM input pins, any of the following pins can be used: digital 0 - 13 or analog A0 - A5 
 
-const int pwmPIN[]={pwmInThrottlePin,pwnInSteeringPin,USEchoPin, RPMSignalPin}; // an array to identify the PWM input pins (the array can be any length) 
+const int pwmPIN[]={pwmInThrottlePin,pwmInSteeringPin, pwmInAux1Pin, pwmInAux2Pin, USEchoPin, RPMSignalPin}; // an array to identify the PWM input pins (the array can be any length) 
                                                         // first pin is channel 1, second is channel 2...etc
-#define THROTTLE_PWM_CHANNEL 1
-#define STEERING_PWM_CHANNEL 2
-#define US_PWM_CHANNEL 3
-#define RPM_SENSOR_CHANNEL 4
+#define THROTTLE_PWM_CHANNEL  1
+#define STEERING_PWM_CHANNEL  2
+#define AUX1_PWM_CHANNEL      3
+#define AUX2_PWM_CHANNEL      4
+#define US_PWM_CHANNEL        5
+#define RPM_SENSOR_CHANNEL    6
 
-int RC_inputs = 2;                // The number of pins in pwmPIN that are connected to an RC receiver. Addition pins not connected to an RC receiver could be used for any other purpose i.e. detecting the echo pulse on an HC-SR04 ultrasonic distance sensor
+int RC_inputs = 4;                // The number of pins in pwmPIN that are connected to an RC receiver. Addition pins not connected to an RC receiver could be used for any other purpose i.e. detecting the echo pulse on an HC-SR04 ultrasonic distance sensor
                                   // When 0, it will automatically update to the number of pins specified in pwmPIN[] after calling setup_pwmRead().                                                
 
 /*
@@ -236,7 +238,7 @@ void setup_pwmRead(){
 
 
 // READ INTERRUPTS ON PINS D8-D13: ISR routine detects which pin has changed, and returns PWM pulse width, and pulse repetition period.
-/*
+
 ISR(PCINT0_vect){                                                 // this function will run if a pin change is detected on portB
   
   pciTime = micros();                                             // Record the time of the PIN change in microseconds
@@ -258,7 +260,7 @@ ISR(PCINT0_vect){                                                 // this functi
     }
   }
 }
-*/
+
 // READ INTERRUPTS ON PINS A0-A5: ISR routine detects which pin has changed, and returns PWM pulse width, and pulse repetition period.
 /*
 ISR(PCINT1_vect){                                                 // this function will run if a pin change is detected on portC
@@ -398,7 +400,7 @@ void print_RCpwm(){                             // display the raw RC Channel PW
 }
 
 unsigned int _rx_received = 0;
-void pwm_sampler_update (int *throttle, int *steering) {
+void pwm_sampler_update (int *throttle, int *steering, int * aux1, int * aux2) {
   if (RC_avail()) {
     //print_RCpwm();
     if (PWM_read(THROTTLE_PWM_CHANNEL)) {          // if a new pulse is detected on channel 1, print the pulse width to serial monitor.
@@ -407,6 +409,12 @@ void pwm_sampler_update (int *throttle, int *steering) {
     } 
     if (PWM_read(STEERING_PWM_CHANNEL)) {          // if a new pulse is detected on channel 1, print the pulse width to serial monitor.
       *steering = PWM();
+    }      
+    if (PWM_read(AUX1_PWM_CHANNEL)) {          // if a new pulse is detected on channel 1, print the pulse width to serial monitor.
+      *aux1 = PWM();
+    }     
+    if (PWM_read(AUX2_PWM_CHANNEL)) {          // if a new pulse is detected on channel 1, print the pulse width to serial monitor.
+      *aux2 = PWM();
     }     
   }
 }

@@ -2,9 +2,9 @@
 int cell1Raw = 0;  // variable to store the value coming from the sensor
 int cell2Raw = 0;  // variable to store the value coming from the sensor
 int vbatRaw = 0;  // variable to store the value coming from the sensor
-long cell1mv = 0;  // variable to store the value coming from the sensor
-long cell2mv = 0;  // variable to store the value coming from the sensor
-long vbatmv = 0;  // variable to store the value coming from the sensor
+int cell1mv = 0;  // variable to store the value coming from the sensor
+int cell2mv = 0;  // variable to store the value coming from the sensor
+int vbatmv = 0;  // variable to store the value coming from the sensor
 const int divider=11;
 const long unituv=5000000/1024;
 
@@ -32,7 +32,7 @@ void evaluate_low_battery() {
   }
 }
 
-void LIPO_watcher_update() {
+void battery_watcher_update() {
   // read the value from the sensor:
   cell1Raw = analogRead(batteryCell1Pin);
   cell2Raw = analogRead(batteryCell2Pin);
@@ -78,15 +78,15 @@ void LIPO_watcher_update() {
     }
   }
   
-  //Publish Lipo state
+  //Publish battery state
   if (cell1mv < 100) {
     //Simple battery/power supply, no cells to monitor
-    publish_lipo_state (vbatmv,0,0,0);      
+    publish_battery_state (vbatmv,0,0,0);      
   }else if (cell2mv < 100) {
     // most likely a 2S
-    publish_lipo_state (vbatmv, cell1mv, vbatmv-cell1mv,0);
+    publish_battery_state (vbatmv, cell1mv, vbatmv-cell1mv,0);
   } else {
     // most likely a 3S
-    publish_lipo_state (vbatmv, cell1mv, cell2mv-cell1mv,vbatmv-cell2mv);
+    publish_battery_state (vbatmv, cell1mv, cell2mv-cell1mv,vbatmv-cell2mv);
   }
 }
