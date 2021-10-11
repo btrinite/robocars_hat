@@ -129,7 +129,7 @@ void publish_battery_state (int vbatmv, int cell1mv, int cell2mv, int cell3mv) {
 }
 
 void publish_channels_state (int throttle, int steering, int aux1, int aux2) {
-  int fit = snprintf (buff, sizeof(buff), "%d,%d,%d,%d,%d\r\n", TX_MSG_RX_CHANNELS, throttle, steering, aux1, aux2);
+  int fit = snprintf (buff, sizeof(buff), "%d,%d,%d,%d,%d \r\n", TX_MSG_RX_CHANNELS, throttle, steering, aux1, aux2);
   if (fit > 0 and fit < sizeof(buff)) {
     publish_buff(buff);
   }
