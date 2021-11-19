@@ -106,3 +106,12 @@ Needed dependencies :
 - modified Arduino Servo library, available [here](https://github.com/btrinite/Servo). The change is about to reduce memory footprint. For that purpose, we have decreased SERVOS_PER_TIMER from 12 to 4 (src/Servo.h)
 
 The PWM sampling part of the software is largely inspired from Kelvin Nelson work, available [here](https://create.arduino.cc/projecthub/kelvineyeone/read-pwm-decode-rc-receiver-input-and-apply-fail-safe-6b90eb)
+
+
+History
+=======
+
+Nov 19 2021 - conflict with u-boot startup
+------------------------------------------
+
+Working on a raspberry 4 with Ubuntu 20.04 64 bits, we found that u-boot provided with Ubuntu allows user to interact with boot at startup time through uart (the one connected through GPIO) for few seconds before default boot occured. As soon as power is supplied, both Raspberry and Arduino starts. Arduino then start sending messages through the serial link with Raspberry (whatever the comunication option selected). However, u-boot starts also listening to UART to let chance for uer to halt boot sequence. This is the conflictual and prevent raspberry to start because of messages received on UART on raspberry side and u-boot deciding to halt default boot seqeuence. For that purpose, until a better solution is identified (such as disabling interaction through UART in u-boot), a delay can be added in Arduino firmware to let a change for Raspberry to boot Linux. Delay is fixed to 5 seconds zhich looks enough. This behavior is controlled though STARTUP_DELAYED macro.
