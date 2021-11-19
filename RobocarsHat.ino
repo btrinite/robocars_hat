@@ -1,7 +1,10 @@
 
 // Select communication protocole to use (Use_ROSSerial for ROS topics overs serial, Use_SLIPSerial for SLIP over serial)
-//#define Use_ROSSerial
-#define Use_SimpleSerial
+#define Use_ROSSerial
+//#define Use_SimpleSerial
+
+// Delay startup to avoid conflict with host bootloader (u-boot for example)
+#define STARTUP_DELAYED
 
 // We user Servo arduino library to drive PWM output since it offers better resolution than simple analogWrite.
 // However we did a little change compared to original version (from here : https://github.com/arduino-libraries/Servo),
@@ -43,8 +46,8 @@
 // PWM/sensors input, use Pin Change ISR PCINT2_vect
 #define pwmInThrottlePin      6
 #define pwmInSteeringPin      7
-#define pwmInAux1Pin          8
-#define pwmInAux2Pin          12
+#define pwmInAux1Pin          12
+#define pwmInAux2Pin          8
 #define USEchoPin             2
 #define RPMSignalPin          4
 
@@ -69,6 +72,9 @@ unsigned char battery_low=0;
 unsigned char failsafe = 0;
 
 void setup (void) {
+  #ifdef STARTUP_DELAYED
+  delay(5000);
+  #endif
   pwmdriver_setup(pwmOutThrottlePin, pwmOutSteeringPin);
   setup_pwm_sampler();
   led_controler_setup();
@@ -89,6 +95,10 @@ void loop() {
   int aux2=1500;
 
   tsStart=micros();
+
+  //Task to be done as soon as possible
+  com_controler_update();
+
   if (tsStart>=lastTsStart) 
   {  
     if ((tsStart-lastTsStart)>=10000)
@@ -98,11 +108,11 @@ void loop() {
         led_controler_reset_alarm(LED_CTRL_ALARM_STARTUP);  
       }
       //Task to be done at 1Hz
-      if (_cnt%100 == 0) {
+      if (_cnt%100 == 67) {
         battery_watcher_update();  
       }
       //Task to be done at 10Hz
-      if (_cnt%10 == 0) {
+      if (_cnt%10 == 7) {
         led_controler_update();
         pwmdriver_check_failsafe();
         pwm_sampler_check_failsafe();
@@ -123,7 +133,4 @@ void loop() {
       // Time counter overflow
       lastTsStart=tsStart;     
   }
-
-  //Task to be done as soon as possible
-  com_controler_update();
 }
