@@ -1,10 +1,10 @@
 
 // Select communication protocole to use (Use_ROSSerial for ROS topics overs serial, Use_SLIPSerial for SLIP over serial)
-#define Use_ROSSerial
-//#define Use_SimpleSerial
+//#define Use_ROSSerial
+#define Use_SimpleSerial
 
 // Delay startup to avoid conflict with host bootloader (u-boot for example)
-#define STARTUP_DELAYED
+//#define STARTUP_DELAYED
 
 // We user Servo arduino library to drive PWM output since it offers better resolution than simple analogWrite.
 // However we did a little change compared to original version (from here : https://github.com/arduino-libraries/Servo),
@@ -112,13 +112,13 @@ void loop() {
         battery_watcher_update();  
       }
       //Task to be done at 10Hz
-      if (_cnt%10 == 7) {
+      if (_cnt%10 == 5) {
         led_controler_update();
         pwmdriver_check_failsafe();
         pwm_sampler_check_failsafe();
       }
       //Task to be done at 30Hz
-      if (_cnt%3 == 0) {
+      if (_cnt%3 == 2) {
         sensor_controler_update();
       }  
     
