@@ -115,3 +115,9 @@ Nov 19 2021 - conflict with u-boot startup
 ------------------------------------------
 
 Working on a raspberry 4 with Ubuntu 20.04 64 bits, we found that u-boot provided with Ubuntu allows user to interact with boot at startup time through uart (the one connected through GPIO) for few seconds before default boot occured. As soon as power is supplied, both Raspberry and Arduino starts. Arduino then start sending messages through the serial link with Raspberry (whatever the comunication option selected). However, u-boot starts also listening to UART to let chance for uer to halt boot sequence. This is the conflictual and prevent raspberry to start because of messages received on UART on raspberry side and u-boot deciding to halt default boot seqeuence. For that purpose, until a better solution is identified (such as disabling interaction through UART in u-boot), a delay can be added in Arduino firmware to let a change for Raspberry to boot Linux. Delay is fixed to 5 seconds zhich looks enough. This behavior is controlled though STARTUP_DELAYED macro. If Raspberry is restarted meanwhile (for example through command line), it could not restart since Hat will again interrupt u-boot.
+
+To Do List
+==========
+
+- Automatic qualibration. For now, when Hat starts and until a valid steering/throttle signal is received from Host, Hat outputs a default PWM signal fixed to 1.5 ms. It could be slightly different from idle signal from radio controller. It could be interresting to implement some kind of automatic qualibration performed at startup time to detect true idle position from radio controller and to align on it.
+- Automatic pass-through : until host is ready, passthrough steering and throttle from Radio Receiver to PWM outputs. That would allow to drive car from radio controller when Host software is not ready/started. Autocalibration is needed before.
