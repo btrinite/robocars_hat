@@ -1,7 +1,7 @@
 
 // Select communication protocole to use (Use_ROSSerial for ROS topics overs serial, Use_SLIPSerial for SLIP over serial)
-//#define Use_ROSSerial
-#define Use_SimpleSerial
+#define Use_ROSSerial
+//#define Use_SimpleSerial
 
 // Delay startup to avoid conflict with host bootloader (u-boot for example)
 //#define STARTUP_DELAYED
@@ -85,14 +85,15 @@ void setup (void) {
   led_controler_set_alarm(LED_CTRL_ALARM_STARTUP);
 }
 
+int aux1In=1500;
+int aux2In=1500;
+int throttleIn=1500;
+int steeringIn=1500;
+
 void loop() {
   static unsigned int _cnt=0;
   static unsigned long lastTsStart = 0;
   unsigned long tsStart = 0;
-  int throttleIn=1500;
-  int steeringIn=1500;
-  int aux1=1500;
-  int aux2=1500;
 
   tsStart=micros();
 
@@ -124,8 +125,8 @@ void loop() {
     
       //Task to be done at 100Hz
       if (_cnt%1 == 0) {
-        pwm_sampler_update(&throttleIn, &steeringIn, &aux1, &aux2);
-        publish_channels_state (throttleIn, steeringIn, aux1, aux2);
+        pwm_sampler_update(&throttleIn, &steeringIn, &aux1In, &aux2In);
+        publish_channels_state (throttleIn, steeringIn, aux1In, aux2In);
       }
       lastTsStart=tsStart;     
     }

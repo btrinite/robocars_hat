@@ -1,12 +1,6 @@
 
-int cell1Raw = 0;  // variable to store the value coming from the sensor
-int cell2Raw = 0;  // variable to store the value coming from the sensor
-int vbatRaw = 0;  // variable to store the value coming from the sensor
-int cell1mv = 0;  // variable to store the value coming from the sensor
-int cell2mv = 0;  // variable to store the value coming from the sensor
-int vbatmv = 0;  // variable to store the value coming from the sensor
-const int divider=11;
-const long unituv=5000000/1024;
+#define ADC_PRE_DIVIDER 11
+#define UNITUV (5000000/1024)
 
 void LIPO_watcher_setup() {
 }
@@ -33,13 +27,22 @@ void evaluate_low_battery() {
 }
 
 void battery_watcher_update() {
+
+  int cell1Raw;  // variable to store the value coming from the sensor
+  int cell2Raw;  // variable to store the value coming from the sensor
+  int vbatRaw;  // variable to store the value coming from the sensor
+
+  int cell1mv = 0;  // variable to store the value coming from the sensor
+  int cell2mv = 0;  // variable to store the value coming from the sensor
+  int vbatmv = 0;  // variable to store the value coming from the sensor
+
   // read the value from the sensor:
   cell1Raw = analogRead(batteryCell1Pin);
   cell2Raw = analogRead(batteryCell2Pin);
   vbatRaw = analogRead(batteryVBatPin);
-  cell1mv = (cell1Raw*unituv*divider)/1000;
-  cell2mv = (cell2Raw*unituv*divider)/1000;
-  vbatmv = (vbatRaw*unituv*divider)/1000;
+  cell1mv = (cell1Raw*UNITUV*ADC_PRE_DIVIDER)/1000;
+  cell2mv = (cell2Raw*UNITUV*ADC_PRE_DIVIDER)/1000;
+  vbatmv = (vbatRaw*UNITUV*ADC_PRE_DIVIDER)/1000;
   if (battery_low==0) {
 
     //Global VBat
