@@ -1,7 +1,7 @@
 
 unsigned char _pwm_received = 0;
 
-#ifdef Use_Servo
+#ifdef Use_ServoLib
 #include <Servo.h>
 
 Servo throttle_servo;  // create servo object to control a servo
@@ -61,7 +61,78 @@ void pwmdriver_check_failsafe() {
   }
 }
 
-#else
+#endif
+
+#ifdef Use_PWMServoLib
+
+#include <PWMServo.h>
+
+PWMServo throttle_ctrl;  // create servo object to control a servo
+PWMServo steering_ctrl;  // create servo object to control a servo
+
+
+char _throttle_pin = -1;
+char _steering_pin = -1;
+
+void pwmdriver_set_throttle_output (int durationNs) {
+  _pwm_received++;
+  _pwmdriver_set_throttle_output (durationNs);
+}
+
+
+void pwmdriver_set_steering_output (int durationNs) {
+  _pwmdriver_set_steering_output(durationNs);
+
+}
+
+void _pwmdriver_set_throttle_output (int durationNs) {
+  if (failsafe==0) {
+    throttle_ctrl.write(map(durationNs,1000,2000,0,179));                  
+  }
+}
+
+
+void _pwmdriver_set_steering_output (int durationNs) {
+  if (failsafe==0) {
+    steering_ctrl.write(map(durationNs,1000,2000,0,179));                  
+  }
+}
+
+void pwmdriver_setup(int throttle_pin, int steering_pin) {
+  _throttle_pin = throttle_pin;
+  _steering_pin = steering_pin;  
+  throttle_ctrl.attach(_throttle_pin, 1000, 2000);         
+  steering_ctrl.attach(_steering_pin, 1000, 2000);         
+  throttle_ctrl.write(map(PWN_out_throttle_Failsafe,1000,2000,0,179));                  
+  steering_ctrl.write(map(PWN_out_steering_Failsafe,1000,2000,0,179));                  
+}
+
+void pwmdriver_check_failsafe() {
+  // mostly for faisafe check
+  if (drive_loss==0) {
+    if (_pwm_received==0) {
+      led_controler_set_alarm(LED_CTRL_ALARM_DRIVE_LOSS);
+      drive_loss=1;  
+    }
+  } else {
+    if (_pwm_received > 0) {
+      led_controler_reset_alarm(LED_CTRL_ALARM_DRIVE_LOSS);
+      drive_loss=0;  
+    }
+  }
+  _pwm_received = 0;
+  if (!com_controler_check_status() || (rx_loss==1) || (drive_loss==1) || (battery_low==1)) {
+    _pwmdriver_set_throttle_output (PWN_out_throttle_Failsafe);
+    _pwmdriver_set_steering_output (PWN_out_steering_Failsafe);  
+    failsafe = 1;
+  } else {
+    failsafe = 0;
+  }
+}
+
+#endif
+
+#ifdef Use_BasicPWMDriver
 
 //https://www.arduino.cc/reference/en/language/functions/analog-io/analogwrite/
 #define PWM_Frequency (33333)
@@ -125,7 +196,7 @@ void pwmdriver_set_throttle_output (int durationNs)
 
 void pwmdriver_set_steering_output (int durationNs)
 {
-  _pwmdriver_set_steering_output(durationNs)
+  _pwmdriver_set_steering_output(durationNs);
 }
 
 void pwmdriver_setup(int throttle_pin, int steering_pin)

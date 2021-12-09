@@ -1,15 +1,37 @@
+//=========================================
+// Configutation part
+// - Configure communication protocol 
+// - Configure PWM Library
+//=========================================
+
+
+//=========================================
+// communication protocol 
+//=========================================
 
 // Select communication protocole to use (Use_ROSSerial for ROS topics overs serial, Use_SLIPSerial for SLIP over serial)
 #define Use_ROSSerial
 //#define Use_SimpleSerial
 
 // Delay startup to avoid conflict with host bootloader (u-boot for example)
-//#define STARTUP_DELAYED
+#define STARTUP_DELAYED
 
-// We user Servo arduino library to drive PWM output since it offers better resolution than simple analogWrite.
+//=========================================
+// PWM Library
+//=========================================
+
+// Select PWM Library
+
+//#define Use_Servo
+// Uncomment above to user Servo Lib
+// Servo arduino library offers better resolution than simple analogWrite.
 // However we did a little change compared to original version (from here : https://github.com/arduino-libraries/Servo),
 // to reduce memory footprint, we changed SERVOS_PER_TIMER from 12 to 4 (src/Servo.h)
-#define Use_Servo
+
+#define Use_PWMServoLib
+// Uncomment above to user PWMServo Lib
+// PWMServo arduino library looks more stable than Servo Library
+// https://github.com/PaulStoffregen/PWMServo
 
 // ROS, if used, define serial speed
 #ifdef Use_ROSSerial
