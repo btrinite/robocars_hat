@@ -148,9 +148,7 @@
  */
  
 // PWM input pins, any of the following pins can be used: digital 0 - 13 or analog A0 - A5 
-
-const int pwmPIN[]={pwmInThrottlePin,pwmInSteeringPin, USEchoPin, RPMSignalPin, pwmInAux1Pin, pwmInAux2Pin}; // an array to identify the PWM input pins (the array can be any length) 
-//const int pwmPIN[]={pwmInThrottlePin,pwmInSteeringPin, USEchoPin, RPMSignalPin}; // an array to identify the PWM input pins (the array can be any length) 
+const unsigned char pwmPIN[]={pwmInThrottlePin,pwmInSteeringPin, USEchoPin, RPMSignalPin, pwmInAux1Pin, pwmInAux2Pin}; // an array to identify the PWM input pins (the array can be any length) 
                                                         // first pin is channel 1, second is channel 2...etc
 #define THROTTLE_PWM_CHANNEL  1
 #define STEERING_PWM_CHANNEL  2
@@ -159,25 +157,26 @@ const int pwmPIN[]={pwmInThrottlePin,pwmInSteeringPin, USEchoPin, RPMSignalPin, 
 #define AUX1_PWM_CHANNEL      5
 #define AUX2_PWM_CHANNEL      6
 
-int RC_inputs = 2;                // The number of pins in pwmPIN that are connected to an RC receiver. Addition pins not connected to an RC receiver could be used for any other purpose i.e. detecting the echo pulse on an HC-SR04 ultrasonic distance sensor
+unsigned char RC_inputs = 2;                // The number of pins in pwmPIN that are connected to an RC receiver. Addition pins not connected to an RC receiver could be used for any other purpose i.e. detecting the echo pulse on an HC-SR04 ultrasonic distance sensor
                                   // When 0, it will automatically update to the number of pins specified in pwmPIN[] after calling setup_pwmRead().                                                
 
 /*
  *    GLOBAL PWM DECODE VARIABLES
  */
 
-const int num_ch = sizeof(pwmPIN)/sizeof(int);  // calculate the number of input pins (or channels)
-volatile int PW[num_ch];                        // an array to store pulsewidth measurements
-volatile boolean prev_pinState[num_ch];         // an array used to determine whether a pin has gone low-high or high-low
+//const unsigned char num_ch = sizeof(pwmPIN)/sizeof(unsigned char);  // calculate the number of input pins (or channels)
+#define NUM_CH (sizeof(pwmPIN)/sizeof(unsigned char))  // calculate the number of input pins (or channels)
+volatile int PW[NUM_CH];                        // an array to store pulsewidth measurements
+volatile boolean prev_pinState[NUM_CH];         // an array used to determine whether a pin has gone low-high or high-low
 volatile unsigned long pciTime;                 // the time of the current pin change interrupt
-volatile unsigned long pwmTimer[num_ch];        // an array to store the start time of each PWM pulse
+volatile unsigned long pwmTimer[NUM_CH];        // an array to store the start time of each PWM pulse
 
-volatile boolean pwmFlag[num_ch];               // flag whenever new data is available on each pin
+volatile boolean pwmFlag[NUM_CH];               // flag whenever new data is available on each pin
 volatile boolean RC_data_rdy;                   // flag when all RC receiver channels have received a new pulse
-unsigned long pwmPeriod[num_ch];                 // period, mirco sec, between two pulses on each pin
+unsigned long pwmPeriod[NUM_CH];                 // period, mirco sec, between two pulses on each pin
 
-byte pwmPIN_reg[num_ch];                        // each of the input pins expressed as a position on it's associated port register
-byte pwmPIN_port[num_ch];                       // identify which port each input pin belongs to (0 = PORTB, 1 = PORTC, 2 = PORTD)
+byte pwmPIN_reg[NUM_CH];                        // each of the input pins expressed as a position on it's associated port register
+byte pwmPIN_port[NUM_CH];                       // identify which port each input pin belongs to (0 = PORTB, 1 = PORTC, 2 = PORTD)
 
 
 // FUNCTION USED TO TURN ON THE INTERRUPTS ON THE RELEVANT PINS
@@ -192,7 +191,7 @@ void pciSetup(byte pin){
 // FUNCTION USED TO FIND THE PIN POSITION ON EACH PORT REGISTER: helps the interrupt service routines, ISR, run faster
 
 void pwmPIN_to_port(){
-  for (int i = 0; i < num_ch; i++){
+  for (int i = 0; i < NUM_CH; i++){
 
     // determine which port and therefore ISR (PCINT0_vect, PCINT1_vect or PCINT2_vect) each pwmPIN belongs to.
                                                                   pwmPIN_port[i] = 1;    // pin belongs to PCINT1_vect (PORT C)
@@ -218,13 +217,13 @@ void pwmPIN_to_port(){
 
 void setup_pwmRead(){
   
-  for(int i = 0; i < num_ch; i++){              // run through each input pin
+  for(int i = 0; i < NUM_CH; i++){              // run through each input pin
     pciSetup(pwmPIN[i]);                        // enable pinchange interrupt for pin
   }
   pwmPIN_to_port();                             // determines the port for each input pin
                                                 // pwmPIN_to_port() also coverts the pin number in pwmPIN[] (i.e. pin 11 or pin A0) to the pin position in the port register (i.e. 0b00000001) for use in the ISR.
   
-  if(RC_inputs == 0 || RC_inputs > num_ch) RC_inputs = num_ch;    // define the number of pins connected to an RC receiver.                                          
+  if(RC_inputs == 0 || RC_inputs > NUM_CH) RC_inputs = NUM_CH;    // define the number of pins connected to an RC receiver.                                          
 } 
 
 // INTERRUPT SERVICE ROUTINES (ISR) USED TO READ PWM INPUT
@@ -245,7 +244,7 @@ ISR(PCINT0_vect){                                                 // this functi
   
   pciTime = micros();                                             // Record the time of the PIN change in microseconds
 
-  for (int i = 0; i < num_ch; i++){                               // run through each of the channels
+  for (int i = 0; i < NUM_CH; i++){                               // run through each of the channels
     if (pwmPIN_port[i] == 0){                                     // if the current channel belongs to portB
       
       if(prev_pinState[i] == 0 && PINB & pwmPIN_reg[i]){          // and the pin state has changed from LOW to HIGH (start of pulse)
@@ -293,7 +292,7 @@ ISR(PCINT2_vect){                                                 // this functi
 
   pciTime = micros();                                             // Record the time of the PIN change in microseconds
 
-  for (int i = 0; i < num_ch; i++){                               // run through each of the channels
+  for (int i = 0; i < NUM_CH; i++){                               // run through each of the channels
     if (pwmPIN_port[i] == 2){                                     // if the current channel belongs to portD
       
       if(prev_pinState[i] == 0 && PIND & pwmPIN_reg[i]){          // and the pin state has changed from LOW to HIGH (start of pulse)
@@ -368,7 +367,7 @@ int pin_pwm;
 unsigned long pin_period;
 
 boolean PWM_read(int CH){
-  if(CH < 1 && CH > num_ch) return false;
+  if(CH < 1 && CH > NUM_CH) return false;
   int i = CH-1;
   boolean avail = pwmFlag[i];
   if (avail == HIGH){

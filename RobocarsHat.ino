@@ -10,8 +10,8 @@
 //=========================================
 
 // Select communication protocole to use (Use_ROSSerial for ROS topics overs serial, Use_SLIPSerial for SLIP over serial)
-#define Use_ROSSerial
-//#define Use_SimpleSerial
+//#define Use_ROSSerial
+#define Use_SimpleSerial
 
 // Delay startup to avoid conflict with host bootloader (u-boot for example)
 #define STARTUP_DELAYED
@@ -22,7 +22,7 @@
 
 // Select PWM Library
 
-//#define Use_Servo
+//#define Use_ServoLib
 // Uncomment above to user Servo Lib
 // Servo arduino library offers better resolution than simple analogWrite.
 // However we did a little change compared to original version (from here : https://github.com/arduino-libraries/Servo),
@@ -32,6 +32,8 @@
 // Uncomment above to user PWMServo Lib
 // PWMServo arduino library looks more stable than Servo Library
 // https://github.com/PaulStoffregen/PWMServo
+
+//#define Use_BasicPWMDriver
 
 // ROS, if used, define serial speed
 #ifdef Use_ROSSerial
@@ -94,14 +96,14 @@ unsigned char battery_low=0;
 unsigned char failsafe = 0;
 
 void setup (void) {
-  #ifdef STARTUP_DELAYED
-  delay(5000);
-  #endif
   pwmdriver_setup(pwmOutThrottlePin, pwmOutSteeringPin);
   setup_pwm_sampler();
   led_controler_setup();
   LIPO_watcher_setup();
   sensor_controler_setup();
+  #ifdef STARTUP_DELAYED
+  delay(5000);
+  #endif
   com_controler_setup();
   //Serial.begin(115200);
   led_controler_set_alarm(LED_CTRL_ALARM_STARTUP);
