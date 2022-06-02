@@ -96,6 +96,17 @@ msg_type, from Host to Hat :
     - param1 : int : throttle (signal pulse width in us, expecting value betzeen 1000 and 2000)
     - param2 : int : steering (signal pulse width in us, expecting value betzeen 1000 and 2000)
 
+Other options
+============
+
+Add 5 seconds startup delay to prevent UART colision with host bootloader (typical case with u-boot)
+#define STARTUP_DELAYED
+
+Imple;ent faisafe mechanism (co;;ent to remove faisafem can be usefull to control PWM output even if no Rx radio module is connected)
+#define IMPLEMENT_FAILSAFE
+
+Control extra led (could affect real time performance, for example accuracy of PWM Sampler)
+#define EXTRA_LED
 
 Dependencies
 ============
@@ -114,7 +125,7 @@ History
 Nov 19 2021 - conflict with u-boot startup
 ------------------------------------------
 
-Working on a raspberry 4 with Ubuntu 20.04 64 bits, we found that u-boot provided with Ubuntu allows user to interact with boot at startup time through uart (the one connected through GPIO) for few seconds before default boot occured. As soon as power is supplied, both Raspberry and Arduino starts. Arduino then start sending messages through the serial link with Raspberry (whatever the comunication option selected). However, u-boot starts also listening to UART to let chance for uer to halt boot sequence. This is the conflictual and prevent raspberry to start because of messages received on UART on raspberry side and u-boot deciding to halt default boot seqeuence. For that purpose, until a better solution is identified (such as disabling interaction through UART in u-boot), a delay can be added in Arduino firmware to let a change for Raspberry to boot Linux. Delay is fixed to 5 seconds zhich looks enough. This behavior is controlled though STARTUP_DELAYED macro. If Raspberry is restarted meanwhile (for example through command line), it could not restart since Hat will again interrupt u-boot.
+Working on a raspberry 4 with Ubuntu 20.04 64 bits, we found that u-boot provided with Ubuntu allows user to interact with boot at startup time through uart (the one connected through GPIO) for few seconds before default boot occured. As soon as power is supplied, both Raspberry and Arduino starts. Arduino then start sending messages through the serial link with Raspberry (whatever the comunication option selected). However, u-boot starts also listening to UART to let chance for uer to halt boot sequence. This is the conflictual and prevent raspberry to start because of messages received on UART on raspberry side and u-boot deciding to halt default boot seqeuence. For that purpose, until a better solution is identified (such as disabling interaction through UART in u-boot), a delay can be added in Arduino firmware to let a change for Raspberry to boot Linux. Delay is fixed to 5 seconds which looks enough. This behavior is controlled though STARTUP_DELAYED macro. If Raspberry is restarted meanwhile (for example through command line), it could not restart since Hat will again interrupt u-boot.
 
 To Do List
 ==========
