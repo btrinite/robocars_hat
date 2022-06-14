@@ -17,6 +17,7 @@ The Hat features :
 - High Speed data link (Serial 1Mbps) between Hat and the Host 
 - RBG Led to display status, including Alarm on low battery voltage, loss of receiver, loss of link with the Host, loss of active driving 
 - RGB Led output to control more WS2812B LEDs 
+- automatic calibration (for idle position)
 - Faisafe (Force output PWM to neutral signal in case of alarm)
 
 Communication with Host
@@ -96,17 +97,35 @@ msg_type, from Host to Hat :
     - param1 : int : throttle (signal pulse width in us, expecting value betzeen 1000 and 2000)
     - param2 : int : steering (signal pulse width in us, expecting value betzeen 1000 and 2000)
 
+Automatic Calibration
+=====================
+
+The Hat will try to determine automatically idle PWM values coming from Rx Channel.
+Idle/Failsafe steering and throttling are then determined thanks to this calibartion step.
+Algorithm is the folowin :
+- switch off PWM output until RX Radio has been detected and calibrated
+- when new PWM signal is detected on PWN inputs, sample PWN signal during 30 cycles,
+- if after 30 cycles, both PWM input signals has been sampled for throttle and steering, assume those are idles vqlues
+- switch on PWM output usign these idles values
+- if RX Radio Faisafe condition is detected later, restart the calibration procedure
+
+
 Other options
 ============
 
 Add 5 seconds startup delay to prevent UART colision with host bootloader (typical case with u-boot)
 #define STARTUP_DELAYED
 
-Imple;ent faisafe mechanism (co;;ent to remove faisafem can be usefull to control PWM output even if no Rx radio module is connected)
+Implement faisafe mechanism (co;;ent to remove faisafem can be usefull to control PWM output even if no Rx radio module is connected)
 #define IMPLEMENT_FAILSAFE
 
 Control extra led (could affect real time performance, for example accuracy of PWM Sampler)
 #define EXTRA_LED
+
+replace micros() by a timer2 based library, with better precision (8x)
+#define USE_TIMER2_COUNTER
+
+Grounding Aux2 In at startup force a local passthrough betzeen Rx Radio and PWM outputs.
 
 Dependencies
 ============
@@ -115,7 +134,7 @@ Needed dependencies :
 - ros [see rosserial for Arduino](http://wiki.ros.org/rosserial_arduino/Tutorials). The rosserial packaged used is a specific one, available [here](https://github.com/btrinite/rosserial). It features a macro allowing to change serial baud rate (see ROSSERIAL_BAUD)
 - PololuLedStrip library to control RGB WS2812B style LED, available [here](https://github.com/pololu/pololu-led-strip-arduino).
 - modified Arduino Servo library, available [here](https://github.com/btrinite/Servo). The change is about to reduce memory footprint. For that purpose, we have decreased SERVOS_PER_TIMER from 12 to 4 (src/Servo.h)
-
+- micros() is replaced by a timer2 based lib providing better resolution, available [here](https://www.electricrcaircraftguy.com/2014/02/Timer2Counter-more-precise-Arduino-micros-function.html) 
 The PWM sampling part of the software is largely inspired from Kelvin Nelson work, available [here](https://create.arduino.cc/projecthub/kelvineyeone/read-pwm-decode-rc-receiver-input-and-apply-fail-safe-6b90eb)
 
 
@@ -130,5 +149,10 @@ Working on a raspberry 4 with Ubuntu 20.04 64 bits, we found that u-boot provide
 To Do List
 ==========
 
-- Automatic qualibration. For now, when Hat starts and until a valid steering/throttle signal is received from Host, Hat outputs a default PWM signal fixed to 1.5 ms. It could be slightly different from idle signal from radio controller. It could be interresting to implement some kind of automatic qualibration performed at startup time to detect true idle position from radio controller and to align on it.
 - Automatic pass-through : until host is ready, passthrough steering and throttle from Radio Receiver to PWM outputs. That would allow to drive car from radio controller when Host software is not ready/started. Autocalibration is needed before.
+
+Timers usage
+============
+PWM Driver : Timer 1
+micros() replacement : Timer 2
+

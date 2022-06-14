@@ -239,11 +239,14 @@ void setup_pwmRead(){
 
 // READ INTERRUPTS ON PINS D8-D13: ISR routine detects which pin has changed, and returns PWM pulse width, and pulse repetition period.
 
-
 ISR(PCINT0_vect){                                                 // this function will run if a pin change is detected on portB
-  
-  pciTime = micros();                                             // Record the time of the PIN change in microseconds
 
+  #ifdef USE_TIMER2_COUNTER
+  pciTime = int (timer2.get_count()/2);                                             // Record the time of the PIN change in microseconds
+  #else
+  pciTime = micros();                                             // Record the time of the PIN change in microseconds
+  #endif
+  
   for (int i = 0; i < NUM_CH; i++){                               // run through each of the channels
     if (pwmPIN_port[i] == 0){                                     // if the current channel belongs to portB
       
@@ -290,7 +293,11 @@ ISR(PCINT1_vect){                                                 // this functi
 
 ISR(PCINT2_vect){                                                 // this function will run if a pin change is detected on portD
 
+  #ifdef USE_TIMER2_COUNTER
+  pciTime = int (timer2.get_count()/2);                                             // Record the time of the PIN change in microseconds
+  #else
   pciTime = micros();                                             // Record the time of the PIN change in microseconds
+  #endif
 
   for (int i = 0; i < NUM_CH; i++){                               // run through each of the channels
     if (pwmPIN_port[i] == 2){                                     // if the current channel belongs to portD
@@ -309,6 +316,7 @@ ISR(PCINT2_vect){                                                 // this functi
     }
   }
 }
+
 
 /*
  *  RC OUTPUT FUNCTIONS
@@ -387,6 +395,7 @@ int PWM(){return pin_pwm;}
 
 
 void setup_pwm_sampler()  {
+   led_controler_set_alarm(LED_CTRL_ALARM_RX_LOSS);
    for(int i = 0; i < NUM_CH; i++){              // run through each input pin
       pinMode (pwmPIN[i], INPUT_PULLUP);
    }
@@ -425,16 +434,31 @@ void pwm_sampler_update (int *throttle, int *steering, int * aux1, int * aux2) {
 }
 
 void pwm_sampler_check_failsafe () {
-  if (rx_loss==0) {
-    if (_rx_received ==0) {
-      led_controler_set_alarm(LED_CTRL_ALARM_RX_LOSS);
-      rx_loss = 1;      
+  if (pwm_calibrated==1) {
+    if (rx_loss==0) {
+      if (_rx_received ==0) {
+        led_controler_set_alarm(LED_CTRL_ALARM_RX_LOSS);
+        pwm_calibrated=0;
+        PWM_in_throttle_idle = 0;
+        PWM_in_throttle_idle = 0;
+        rx_loss = 1;      
+      }
+    } else {
+      if (_rx_received > 0) {
+        led_controler_reset_alarm(LED_CTRL_ALARM_RX_LOSS);    
+        rx_loss=0; 
+      }
     }
+    _rx_received = 0;
   } else {
-    if (_rx_received > 0) {
-      led_controler_reset_alarm(LED_CTRL_ALARM_RX_LOSS);    
-      rx_loss=0; 
+    if (_rx_received>30) {
+      if ((PWM_in_throttle_idle >0) && (PWM_in_throttle_idle >0)) {
+        led_controler_reset_alarm(LED_CTRL_ALARM_RX_LOSS);    
+        pwm_calibrated=1;
+      } else {
+        _rx_received = 0;
+
+      }
     }
   }
-  _rx_received = 0;
 }

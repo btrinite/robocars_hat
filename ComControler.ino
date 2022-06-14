@@ -104,6 +104,7 @@ void com_controler_update() {
 #define TX_MSG_BAT_STATE     0
 #define TX_MSG_RX_CHANNELS   1
 #define TX_MSG_SENSORS_STATE 2
+#define TX_MSG_CALIBRATION_STATE 3
 
 //received message type
 #define RX_MSG_DRIVE_CHANNELS   1
@@ -141,6 +142,14 @@ void publish_channels_state (int throttle, int steering, int aux1, int aux2) {
 
 void publish_sensors_state (int distance, int rpm) {
   int fit = snprintf (buff, sizeof(buff), "%d,%d,%d\r\n", TX_MSG_SENSORS_STATE, distance, rpm);
+  if (fit > 0 and fit < sizeof(buff)) {
+    publish_buff(buff);
+  }
+}
+
+void publish_calibration_state (unsigned int throttleIdle, unsigned int steeringIdle) {
+
+  int fit = snprintf (buff, sizeof(buff), "%d,%d,%d\r\n", TX_MSG_CALIBRATION_STATE, throttleIdle, steeringIdle);
   if (fit > 0 and fit < sizeof(buff)) {
     publish_buff(buff);
   }

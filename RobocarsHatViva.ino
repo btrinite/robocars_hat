@@ -22,6 +22,13 @@
 // Implement extra led aninmation (could affect PWM Sampler precision)
 #define EXTRA_LED
 
+// micros() as 4us resolution, while this timer2 lib provides 0.5us
+#define USE_TIMER2_COUNTER
+
+#ifdef USE_TIMER2_COUNTER
+#include <eRCaGuy_Timer2_Counter.h>
+#endif
+
 //=========================================
 // PWM Library
 //=========================================
@@ -60,17 +67,11 @@
 #define LED_CTRL_ALARM_LINK_LOSS    5 // Means ROS not connected/disconnected (White blinking fast)
 #define LED_CTRL_ALARM_DRIVE_LOSS   6 // Means no PWM order received, failsafe (Green blinking fast)
 
-#define PWM_in_throttle_idle 1480 // TODO : detect it dynamically
-#define PWN_out_throttle_Failsafe PWM_in_throttle_idle
-#define PWN_out_steering_Failsafe 1500 
+unsigned int PWM_in_throttle_idle = 0;
+unsigned int PWM_in_steering_idle = 0;
 
-// Following allows to trim throttle output 
-// #define OUT_THROTTLE_TRIM
-#define PWN_out_throttle_Idle PWM_in_throttle_idle 
-#define PWN_out_throttle_DeadZone 10
-#define PWN_out_throttle_MaxFwd 100
-#define PWN_out_throttle_MaxRev 150
-
+#define PWN_out_throttle_Idle 1500 
+#define PWN_out_steering_Idle 1500 
 
 // Battery Low VOltage
 #define LIPO_CELL_LOW_VOLTAGE 3200
@@ -122,6 +123,8 @@ unsigned char rx_loss=0;
 unsigned char drive_loss=0;
 unsigned char battery_low=0;
 unsigned char failsafe = 0;
+unsigned char pwm_calibrated = 0;
+
 boolean passthrough = false;
 
 bool detect_aux2_grounded () {
@@ -134,7 +137,13 @@ bool detect_aux2_grounded () {
 void setup (void) {
   Serial.begin(115200);
   Serial.println ("Robocars Hat starting");
+
+  #ifdef USE_TIMER2_COUNTER
+  timer2.setup();
+  #endif
+
   pwmdriver_setup(pwmOutThrottlePin, pwmOutSteeringPin);
+  pwmdriver_attach();
   passthrough = detect_aux2_grounded();
   setup_pwm_sampler();
   led_controler_setup();
@@ -145,14 +154,13 @@ void setup (void) {
   #endif
 
   com_controler_setup();
-  //Serial.begin(115200);
   led_controler_set_alarm(LED_CTRL_ALARM_STARTUP); 
 }
 
 int aux1In=1500;
 int aux2In=1500;
-int throttleIn=PWM_in_throttle_idle;
-int steeringIn=1500;
+int throttleIn=0;
+int steeringIn=0;
 
 void loop() {
   static unsigned int _cnt=0;
@@ -184,6 +192,9 @@ void loop() {
         led_controler_update();
         pwmdriver_check_failsafe();
         pwm_sampler_check_failsafe();
+        if (pwm_calibrated==1) {
+          publish_calibration_state (PWM_in_throttle_idle, PWM_in_steering_idle);
+        }
       }
       //Task to be done at 30Hz
       if (_cnt%3 == 2) {
@@ -193,10 +204,15 @@ void loop() {
       //Task to be done at 100Hz
       if (_cnt%1 == 0) {
         pwm_sampler_update(&throttleIn, &steeringIn, &aux1In, &aux2In);
-        publish_channels_state (throttleIn, steeringIn, aux1In, aux2In);
-        if (passthrough) {
-          pwmdriver_set_throttle_output (throttleIn);
-          pwmdriver_set_steering_output (steeringIn);
+        if (pwm_calibrated==0) {
+          PWM_in_throttle_idle = throttleIn;
+          PWM_in_steering_idle = steeringIn;
+        } else {
+          publish_channels_state (throttleIn, steeringIn, aux1In, aux2In);
+          if (passthrough) {
+            pwmdriver_set_throttle_output (throttleIn);
+            pwmdriver_set_steering_output (steeringIn);
+          }
         }
       }
       lastTsStart=tsStart;     

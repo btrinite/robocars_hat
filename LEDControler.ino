@@ -78,10 +78,10 @@ void extraLedStrobe(byte red, byte green, byte blue, int StrobeCount, int FlashD
 
 void extraLedReady() {
   _setAllExtraLed(0,0,0);
-  _setExtraLed (1+FRONT_RIGHT_FULL_BEAM, 0x55, 0x55, 0xaa);
-  _setExtraLed (1+FRONT_RIGHT_LOW_BEAM, 0x55, 0x55, 0x55);
-  _setExtraLed (1+FRONT_LEFT_LOW_BEAM, 0x55, 0x55, 0x55);
-  _setExtraLed (1+FRONT_LEFT_FULL_BEAM, 0x55, 0x55, 0xaa);
+  _setExtraLed (1+FRONT_RIGHT_FULL_BEAM, 0x00, 0x4b, 0x82);
+  _setExtraLed (1+FRONT_RIGHT_LOW_BEAM, 0x00, 0x4b, 0x82);
+  _setExtraLed (1+FRONT_LEFT_LOW_BEAM, 0x00, 0x4b, 0x82);
+  _setExtraLed (1+FRONT_LEFT_FULL_BEAM, 0x00, 0x4b, 0x82);
   _setExtraLed (1+REAR_LEFT_STOP, 0x0, 0x55, 0x0);
   _setExtraLed (1+REAR_RIGHT_STOP, 0x0, 0x55, 0x0);
   ledStrip.write(colors, LED_COUNT);      
