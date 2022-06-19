@@ -199,6 +199,9 @@ void loop() {
       //Task to be done at 30Hz
       if (_cnt%3 == 2) {
         sensor_controler_update();
+        if (aux1In > 1600 && failsafe==0) {
+          extraLedSparkle (0xaa,0xaa,0xaa,5);
+        }
       }  
     
       //Task to be done at 100Hz

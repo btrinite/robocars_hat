@@ -78,10 +78,10 @@ void extraLedStrobe(byte red, byte green, byte blue, int StrobeCount, int FlashD
 
 void extraLedReady() {
   _setAllExtraLed(0,0,0);
-  _setExtraLed (1+FRONT_RIGHT_FULL_BEAM, 0x00, 0x4b, 0x82);
-  _setExtraLed (1+FRONT_RIGHT_LOW_BEAM, 0x00, 0x4b, 0x82);
-  _setExtraLed (1+FRONT_LEFT_LOW_BEAM, 0x00, 0x4b, 0x82);
-  _setExtraLed (1+FRONT_LEFT_FULL_BEAM, 0x00, 0x4b, 0x82);
+  _setExtraLed (1+FRONT_RIGHT_FULL_BEAM, 0x0, 0x0, 0xaa);
+  _setExtraLed (1+FRONT_RIGHT_LOW_BEAM, 0x0, 0x0, 0x55);
+  _setExtraLed (1+FRONT_LEFT_LOW_BEAM, 0x0, 0x0, 0x55);
+  _setExtraLed (1+FRONT_LEFT_FULL_BEAM, 0x0, 0x0, 0xaa);
   _setExtraLed (1+REAR_LEFT_STOP, 0x0, 0x55, 0x0);
   _setExtraLed (1+REAR_RIGHT_STOP, 0x0, 0x55, 0x0);
   ledStrip.write(colors, LED_COUNT);      
@@ -99,10 +99,10 @@ void extraLedBatteryLow () {
 
 void extraLedRxLoss () {
   _setAllExtraLed(0,0,0);
-  _setExtraLed (1+FRONT_RIGHT_FULL_BEAM, 0x0, 0x0, 0xaa);
-  _setExtraLed (1+FRONT_RIGHT_LOW_BEAM, 0x0, 0x0, 0x55);
-  _setExtraLed (1+FRONT_LEFT_LOW_BEAM, 0x0, 0x0, 0x55);
-  _setExtraLed (1+FRONT_LEFT_FULL_BEAM, 0x0, 0x0, 0xaa);
+  _setExtraLed (1+FRONT_RIGHT_FULL_BEAM, 0xaa, 0x0, 0x0);
+  _setExtraLed (1+FRONT_RIGHT_LOW_BEAM, 0x55, 0x0, 0x0);
+  _setExtraLed (1+FRONT_LEFT_LOW_BEAM, 0x55, 0x0, 0x0);
+  _setExtraLed (1+FRONT_LEFT_FULL_BEAM, 0xaa, 0x0, 0x0);
   _setExtraLed (1+REAR_LEFT_STOP, 0x0, 0x55, 0x0);
   _setExtraLed (1+REAR_RIGHT_STOP, 0x0, 0x55, 0x0);
   ledStrip.write(colors, LED_COUNT);      
@@ -219,7 +219,7 @@ void _update_alarm(unsigned char alarm) {
     #ifdef EXTRA_LED
     extraLedUpdate (EXTRA_LED_RX_LOSS);
     #endif
-    _setControlLed (0,0,127,0xaaaa);    
+    _setControlLed (0,127,0,0xaaaa);    
   }else if (alarm & (unsigned char )(1<<LED_CTRL_ALARM_PASSTHROUGH)) {
     #ifdef EXTRA_LED
     extraLedUpdate (EXTRA_LED_ALARM_PASSTHROUGH);
@@ -234,12 +234,12 @@ void _update_alarm(unsigned char alarm) {
     #ifdef EXTRA_LED
     extraLedUpdate (EXTRA_LED_ALARM_DRIVE_LOSS);
     #endif
-    _setControlLed (0,127,0,0xaaaa);        
+    _setControlLed (0,0,127,0xaaaa);        
   }else {
     #ifdef EXTRA_LED
     extraLedUpdate (EXTRA_LED_READY);
     #endif
-    _setControlLed (0,20,0,0xffff);
+    _setControlLed (0,0,20,0xffff);
   }
 }
 
