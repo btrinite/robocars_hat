@@ -20,7 +20,7 @@
 #define IMPLEMENT_FAILSAFE
 
 // Implement extra led aninmation (could affect PWM Sampler precision)
-#define EXTRA_LED
+//#define EXTRA_LED
 
 // micros() as 4us resolution, while this timer2 lib provides 0.5us
 #define USE_TIMER2_COUNTER
@@ -199,9 +199,11 @@ void loop() {
       //Task to be done at 30Hz
       if (_cnt%3 == 2) {
         sensor_controler_update();
+#ifdef EXTRA_LED
         if (aux1In > 1600 && failsafe==0) {
           extraLedSparkle (0xaa,0xaa,0xaa,5);
         }
+#endif
       }  
     
       //Task to be done at 100Hz

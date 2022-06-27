@@ -31,13 +31,16 @@ To select the protocol to use, uncomment accordingly one of the following macro 
 #define Use_ROSSerial // Select ROS communication implementation
 #define Use_SimpleSerial // select simple stupid serial protocol
 
+Note : ROSSerial is currently broken because of lack of resource in Arduino.
+
 Messages
 --------
 
 Hat publishes the following topics to the Host:
 - radio_channels @ 100Hz : Throttle and Steering value acquired from RX Receiver
-- battery @ 1Hz : Battery and Cells current voltage
 - sensors @ 30Hz : Ultrasonic and RPM sensor
+- Radio channels qualibration @ 10Hz : Detected Idle values for Throttle and Steering channels
+- battery @ 1Hz : Battery and Cells current voltage
 
 Hat consumes the folowing topics from the Host:
 - Driving Throttle and Steering
@@ -90,6 +93,9 @@ msg_type, from Hat to Host :
 - 2 : sensors 
     - param1 : Int : Ultrasonic sensor : Distance in cm, -1 if not plugged
     - param2 : Int : rpm sensor : from ~100 (high rpm) to 2000 (low rpm), to check depending on sensor used
+- 3 : qualibration 
+    - param1 : Int : Detected Idle throttle (signal pulse width in us, expecting value betzeen 1000 and 2000)
+    - param2 : Int : Detected Idle steering (signal pulse width in us, expecting value betzeen 1000 and 2000) 
 
 msg_type, from Host to Hat :
 
