@@ -395,7 +395,9 @@ int PWM(){return pin_pwm;}
 
 
 void setup_pwm_sampler()  {
-   led_controler_set_alarm(LED_CTRL_ALARM_RX_LOSS);
+   if (ignore_rc_state==false) {
+      led_controler_set_alarm(LED_CTRL_ALARM_RX_LOSS);
+   }
    for(int i = 0; i < NUM_CH; i++){              // run through each input pin
       pinMode (pwmPIN[i], INPUT_PULLUP);
    }
@@ -434,30 +436,32 @@ void pwm_sampler_update (int *throttle, int *steering, int * aux1, int * aux2) {
 }
 
 void pwm_sampler_check_failsafe () {
-  if (pwm_calibrated==1) {
-    if (rx_loss==0) {
-      if (_rx_received ==0) {
-        led_controler_set_alarm(LED_CTRL_ALARM_RX_LOSS);
-        pwm_calibrated=0;
-        PWM_in_throttle_idle = 0;
-        PWM_in_throttle_idle = 0;
-        rx_loss = 1;      
-      }
-    } else {
-      if (_rx_received > 0) {
-        led_controler_reset_alarm(LED_CTRL_ALARM_RX_LOSS);    
-        rx_loss=0; 
-      }
-    }
-    _rx_received = 0;
-  } else {
-    if (_rx_received>30) {
-      if ((PWM_in_throttle_idle >0) && (PWM_in_throttle_idle >0)) {
-        led_controler_reset_alarm(LED_CTRL_ALARM_RX_LOSS);    
-        pwm_calibrated=1;
+  if (ignore_rc_state==false) {
+    if (pwm_calibrated==1) {
+      if (rx_loss==0) {
+        if (_rx_received ==0) {
+          led_controler_set_alarm(LED_CTRL_ALARM_RX_LOSS);
+          pwm_calibrated=0;
+          PWM_in_throttle_idle = 0;
+          PWM_in_throttle_idle = 0;
+          rx_loss = 1;      
+        }
       } else {
-        _rx_received = 0;
-
+        if (_rx_received > 0) {
+          led_controler_reset_alarm(LED_CTRL_ALARM_RX_LOSS);    
+          rx_loss=0; 
+        }
+      }
+      _rx_received = 0;
+    } else {
+      if (_rx_received>30) {
+        if ((PWM_in_throttle_idle >0) && (PWM_in_throttle_idle >0)) {
+          led_controler_reset_alarm(LED_CTRL_ALARM_RX_LOSS);    
+          pwm_calibrated=1;
+        } else {
+          _rx_received = 0;
+  
+        }
       }
     }
   }

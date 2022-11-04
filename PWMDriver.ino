@@ -45,7 +45,7 @@ void _pwmdriver_set_throttle_output (int durationNs) {
       }  
     }
   }
-  if (pwm_calibrated==0) {
+  if ((pwm_calibrated==0) && (ignore_rc_state==false)) {
     // Calibration lost means that most likely, power train has been restarted, let's observe idle period again
     enforce_idle_output = ENFORCE_IDLE_OUTPUT_CYCLE;    
   }
@@ -74,7 +74,7 @@ void _pwmdriver_set_steering_output (int durationNs) {
       }  
     }
   }
-  if (pwm_calibrated==0) {
+  if ((pwm_calibrated==0) && (ignore_rc_state==false)) {
     // Calibration lost means that most likely, power train has been restarted, let's observe idle period again
     enforce_idle_output = ENFORCE_IDLE_OUTPUT_CYCLE;      
   }
@@ -100,22 +100,24 @@ void pwmdriver_detach() {
 
 void pwmdriver_check_failsafe() {
   // mostly for failsafe check
-  if (drive_loss==0) {
-    // We are actively drived by host
-    if (_pwm_received==0) {
-      // No new PWM order received from host, assume we lost the host
-      led_controler_set_alarm(LED_CTRL_ALARM_DRIVE_LOSS);
-      drive_loss=1;  
+  if (ignore_rc_state==false) {
+    if (drive_loss==0) {
+      // We are actively drived by host
+      if (_pwm_received==0) {
+        // No new PWM order received from host, assume we lost the host
+        led_controler_set_alarm(LED_CTRL_ALARM_DRIVE_LOSS);
+        drive_loss=1;  
+      }
+    } else {
+      // Host was previously lost, do we have any new order
+      if (_pwm_received > 0) {
+        //Host has resume
+        led_controler_reset_alarm(LED_CTRL_ALARM_DRIVE_LOSS);
+        drive_loss=0;  
+      }
     }
-  } else {
-    // Host was previously lost, do we have any new order
-    if (_pwm_received > 0) {
-      //Host has resume
-      led_controler_reset_alarm(LED_CTRL_ALARM_DRIVE_LOSS);
-      drive_loss=0;  
-    }
+    _pwm_received = 0;
   }
-  _pwm_received = 0;
   #ifdef IMPLEMENT_FAILSAFE
   if (!com_controler_check_status() || (rx_loss==1) || (drive_loss==1) || (battery_low==1)) {
     // if we met any of the following condition, force output to idle

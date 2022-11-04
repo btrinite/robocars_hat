@@ -31,7 +31,7 @@ To select the protocol to use, uncomment accordingly one of the following macro 
 #define Use_ROSSerial // Select ROS communication implementation
 #define Use_SimpleSerial // select simple stupid serial protocol
 
-Note : ROSSerial is currently broken because of lack of resource in Arduino.
+**Note : ROSSerial is currently broken because of lack of resource in Arduino.**
 
 Messages
 --------
@@ -119,8 +119,9 @@ Algorithm is the folowin :
 Other options
 ============
 
-Add 5 seconds startup delay to prevent UART colision with host bootloader (typical case with u-boot)
+Add startup delay to prevent UART colision with host bootloader (typical case with u-boot)
 #define STARTUP_DELAYED
+Former delay was set to 5 seconds, but following latest Ubuntu 20-04-5, it has to be increased to 10 seconds until further investigations
 
 Implement faisafe mechanism (co;;ent to remove faisafem can be usefull to control PWM output even if no Rx radio module is connected)
 #define IMPLEMENT_FAILSAFE
@@ -131,7 +132,9 @@ Control extra led (could affect real time performance, for example accuracy of P
 replace micros() by a timer2 based library, with better precision (8x)
 #define USE_TIMER2_COUNTER
 
-Grounding Aux2 In at startup force a local passthrough betzeen Rx Radio and PWM outputs.
+Grounding Aux2 In at startup can be used to (accordingly to flag AUX2_XXXX defined at compile time):
+- force a local passthrough betzeen Rx Radio and PWM outputs (define AUX2_PASSTHROUGH), or 
+- ignore RX Receiver lack of signal (define AUX2_IGNORE_RC_STATE)
 
 Dependencies
 ============

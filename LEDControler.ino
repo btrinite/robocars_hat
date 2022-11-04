@@ -120,17 +120,6 @@ void extraLedStartup () {
   ledStrip.write(colors, LED_COUNT);      
 }
 
-void extraLedPassthrough () {
-  _setAllExtraLed(0,0,0);
-  _setExtraLed (1+FRONT_RIGHT_FULL_BEAM, 0x0, 0x0, 0xaa);
-  _setExtraLed (1+FRONT_RIGHT_LOW_BEAM, 0x0, 0x0, 0x55);
-  _setExtraLed (1+FRONT_LEFT_LOW_BEAM, 0x0, 0x0, 0x55);
-  _setExtraLed (1+FRONT_LEFT_FULL_BEAM, 0x0, 0x0, 0xaa);
-  _setExtraLed (1+REAR_LEFT_STOP, 0x0, 0x55, 0x0);
-  _setExtraLed (1+REAR_RIGHT_STOP, 0x0, 0x55, 0x0);
-  ledStrip.write(colors, LED_COUNT);      
-}
-
 void extraLedDriveLoss () {
   _setAllExtraLed(0,0,0);
   _setExtraLed (1+FRONT_RIGHT_FULL_BEAM, 0x7f, 0x0, 0x0);
@@ -154,9 +143,6 @@ void extraLedUpdate(unsigned char new_mode) {
         break;
       case (EXTRA_LED_RX_LOSS):
         extraLedRxLoss();
-        break;
-      case (EXTRA_LED_ALARM_PASSTHROUGH):
-        extraLedPassthrough();
         break;
       case (EXTRA_LED_ALARM_LINK_LOSS):
         break;
@@ -210,36 +196,42 @@ void _update_alarm(unsigned char alarm) {
     extraLedUpdate (EXTRA_LED_ALARM_BATTERY_LOW);
     #endif
     _setControlLed (255,0,0,0xafaf);    
+  
   }else if (alarm & (unsigned char )(1<<LED_CTRL_ALARM_STARTUP)) {
     #ifdef EXTRA_LED
     extraLedUpdate (EXTRA_LED_ALARM_STARTUP);
     #endif
     _setControlLed (0xff,0x7f,0,0xaaaa);    
+  
   }else if (alarm & (unsigned char )(1<<LED_CTRL_ALARM_RX_LOSS)) {
     #ifdef EXTRA_LED
     extraLedUpdate (EXTRA_LED_RX_LOSS);
     #endif
     _setControlLed (0,127,0,0xaaaa);    
-  }else if (alarm & (unsigned char )(1<<LED_CTRL_ALARM_PASSTHROUGH)) {
-    #ifdef EXTRA_LED
-    extraLedUpdate (EXTRA_LED_ALARM_PASSTHROUGH);
-    #endif
-    _setControlLed (0,0,20,0xffff);
+  
   }else if (alarm & (unsigned char )(1<<LED_CTRL_ALARM_LINK_LOSS)) {
     #ifdef EXTRA_LED
     extraLedUpdate (EXTRA_LED_ALARM_LINK_LOSS);
     #endif
     _setControlLed (64,64,64,0xaaaa);        
+  
   }else if (alarm & (unsigned char )(1<<LED_CTRL_ALARM_DRIVE_LOSS)) {
     #ifdef EXTRA_LED
     extraLedUpdate (EXTRA_LED_ALARM_DRIVE_LOSS);
     #endif
     _setControlLed (0,0,127,0xaaaa);        
+  
   }else {
     #ifdef EXTRA_LED
     extraLedUpdate (EXTRA_LED_READY);
     #endif
-    _setControlLed (0,0,20,0xffff);
+    if (passthrough) {
+      _setControlLed (0,0,20,0xffff);      
+    } else if (ignore_rc_state) {
+      _setControlLed (0,0,20,0x0101);
+    } else {
+      _setControlLed (0,0,20,0xffff);    
+    }
   }
 }
 

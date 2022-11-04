@@ -22,6 +22,10 @@
 // Implement extra led aninmation (could affect PWM Sampler precision)
 //#define EXTRA_LED
 
+// Aux2 grounded feature
+#define AUX2_IGNORE_RC_STATE
+//#define AUX2_PASSTHROUGH 
+
 // micros() as 4us resolution, while this timer2 lib provides 0.5us
 #define USE_TIMER2_COUNTER
 
@@ -61,11 +65,10 @@
 
 // define Alarm
 #define LED_CTRL_ALARM_BATTERY_LOW  0 // Means that battery voltage is low (Red inversed 2 flash blinking each half second)
-#define LED_CTRL_ALARM_STARTUP      2 // Means that Arduino just started/restarted (Orange blinking fast)
-#define LED_CTRL_ALARM_RX_LOSS      3 // Means PCM RX Signal not detected/loss (Blue blinking fast)
-#define LED_CTRL_ALARM_PASSTHROUGH  4 // Means that passthrough mode is active (permanent Blue) 
-#define LED_CTRL_ALARM_LINK_LOSS    5 // Means ROS not connected/disconnected (White blinking fast)
-#define LED_CTRL_ALARM_DRIVE_LOSS   6 // Means no PWM order received, failsafe (Green blinking fast)
+#define LED_CTRL_ALARM_STARTUP      1 // Means that Arduino just started/restarted (Orange blinking fast)
+#define LED_CTRL_ALARM_RX_LOSS      2 // Means PCM RX Signal not detected/loss (Green blinking fast)
+#define LED_CTRL_ALARM_LINK_LOSS    3 // Means ROS not connected/disconnected (White blinking fast)
+#define LED_CTRL_ALARM_DRIVE_LOSS   4 // Means no PWM order received, failsafe (Blue blinking fast)
 
 unsigned int PWM_in_throttle_idle = 0;
 unsigned int PWM_in_steering_idle = 0;
@@ -126,6 +129,7 @@ unsigned char failsafe = 0;
 unsigned char pwm_calibrated = 0;
 
 boolean passthrough = false;
+boolean ignore_rc_state = false;
 
 bool detect_aux2_grounded () {
   pinMode(pwmInAux2Pin, INPUT_PULLUP);
@@ -144,13 +148,20 @@ void setup (void) {
 
   pwmdriver_setup(pwmOutThrottlePin, pwmOutSteeringPin);
   pwmdriver_attach();
-  passthrough = detect_aux2_grounded();
+  #ifdef AUX2_PASSTHROUGH
+    passthrough = detect_aux2_grounded();
+    Serial.println ("AUX2 : Mode passthrough");
+  #endif
+  #ifdef AUX2_IGNORE_RC_STATE
+    ignore_rc_state = detect_aux2_grounded();
+    Serial.println ("AUX2 : Mode Ignore RC state");
+  #endif
   setup_pwm_sampler();
   led_controler_setup();
   LIPO_watcher_setup();
   sensor_controler_setup();
   #ifdef STARTUP_DELAYED
-  delay(5000);
+  delay(10000);
   #endif
 
   com_controler_setup();
@@ -178,10 +189,7 @@ void loop() {
     {
       _cnt++;
       if (_cnt==500) {
-        led_controler_reset_alarm(LED_CTRL_ALARM_STARTUP);  
-        if (passthrough) {
-          led_controler_set_alarm(LED_CTRL_ALARM_PASSTHROUGH);
-        }
+        led_controler_reset_alarm(LED_CTRL_ALARM_STARTUP);          
       }
       //Task to be done at 1Hz
       if (_cnt%100 == 67) {
