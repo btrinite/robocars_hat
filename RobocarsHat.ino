@@ -23,7 +23,7 @@
 //#define EXTRA_LED
 
 // Aux2 grounded feature
-#define AUX2_IGNORE_RC_STATE
+//#define AUX2_IGNORE_RC_STATE
 //#define AUX2_PASSTHROUGH 
 
 // micros() as 4us resolution, while this timer2 lib provides 0.5us

@@ -157,7 +157,7 @@ const unsigned char pwmPIN[]={pwmInThrottlePin,pwmInSteeringPin, pwmInAux1Pin, p
 #define US_PWM_CHANNEL        5
 #define RPM_SENSOR_CHANNEL    6
 
-unsigned char RC_inputs = 3;                // The number of pins in pwmPIN that are connected to an RC receiver. Addition pins not connected to an RC receiver could be used for any other purpose i.e. detecting the echo pulse on an HC-SR04 ultrasonic distance sensor
+unsigned char RC_inputs = 2;                // The number of pins in pwmPIN that are connected to an RC receiver. Addition pins not connected to an RC receiver could be used for any other purpose i.e. detecting the echo pulse on an HC-SR04 ultrasonic distance sensor
                                   // When 0, it will automatically update to the number of pins specified in pwmPIN[] after calling setup_pwmRead().                                                
 
 /*
