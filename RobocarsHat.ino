@@ -33,6 +33,10 @@
 #include <eRCaGuy_Timer2_Counter.h>
 #endif
 
+// New PWM input wiring
+// #define ALL_PWM_SIGNALS_ON_P2
+
+
 //=========================================
 // PWM Library
 //=========================================
@@ -79,6 +83,11 @@ unsigned int PWM_in_steering_idle = 0;
 // Battery Low VOltage
 #define LIPO_CELL_LOW_VOLTAGE 3200
 #define VBAT_LOW_VOLTAGE 5500
+
+// RPM Sensor max value
+#define RPM_SENSOR_MAX_VALUE 8000
+#define RPM_SENSOR_MIN_VALUE 500
+
 // Definition of pin assignment
 //
 
@@ -86,13 +95,23 @@ unsigned int PWM_in_steering_idle = 0;
 #define pwmOutThrottlePin     9
 #define pwmOutSteeringPin     10
 
-// PWM/sensors input, use Pin Change ISR PCINT2_vect
+#ifndef ALL_PWM_SIGNALS_ON_P2
+// PWM/sensors input
 #define pwmInThrottlePin      6
 #define pwmInSteeringPin      7
 #define pwmInAux1Pin          12
 #define pwmInAux2Pin          8
 #define USEchoPin             2
 #define RPMSignalPin          4
+#else
+// PWM/sensors input all wired on P2
+#define pwmInThrottlePin      6
+#define pwmInSteeringPin      7
+#define pwmInAux1Pin          3 //instead of 12
+#define pwmInAux2Pin          2 //instead of 8
+#define USEchoPin             12 //instead of 2
+#define RPMSignalPin          4
+#endif
 
 // on Port D
 #define RGBLEDPin             5
@@ -103,7 +122,10 @@ unsigned int PWM_in_steering_idle = 0;
 #define batteryVBatPin        A1
 
 // Simple GPIO Output
+#ifndef ALL_PWM_SIGNALS_ON_P2
 #define USTriggerPin          3
+#define USTriggerPin          8 //instead of 3
+#else#endif
 
 // Other sizing
 #ifdef EXTRA_LED
@@ -204,16 +226,20 @@ void loop() {
           publish_calibration_state (PWM_in_throttle_idle, PWM_in_steering_idle);
         }
       }
-      //Task to be done at 30Hz
+      //Task to be done at 33Hz
       if (_cnt%3 == 2) {
-        sensor_controler_update();
 #ifdef EXTRA_LED
         if (aux1In > 1600 && failsafe==0) {
           extraLedSparkle (0xaa,0xaa,0xaa,5);
         }
 #endif
       }  
-    
+
+      //Task to be done at 50Hz
+      if (_cnt%2 == 1) {
+        sensor_controler_update();
+      }  
+
       //Task to be done at 100Hz
       if (_cnt%1 == 0) {
         pwm_sampler_update(&throttleIn, &steeringIn, &aux1In, &aux2In);

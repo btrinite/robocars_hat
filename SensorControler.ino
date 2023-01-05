@@ -6,7 +6,7 @@ byte echoPin = USEchoPin;
 #define TEMPERATURE 19.307
 #define speedOfSoundInCmPerMicroSec  (0.03313 + 0.0000606 * TEMPERATURE) // Cair ≈ (331.3 + 0.606 ⋅ ϑ) m/s
 
-MovingAverage <uint8_t, 4> rpm_filter;
+MovingAverage <int32_t, 4> rpm_filter;
 
 void sensor_controler_trigger() {
   // Make sure that trigger pin is LOW.
@@ -31,7 +31,9 @@ void sensor_controler_update () {
     distanceCm = (int)(durationMicroSec / 2.0 * speedOfSoundInCmPerMicroSec);    
   }
   if (PWM_read(RPM_SENSOR_CHANNEL)==HIGH) {
-    rpm = rpm_filter.add((int)PWM());
+    rpm = rpm_filter.add((uint32_t)max(min(RPM_SENSOR_MAX_VALUE,PWM()),RPM_SENSOR_MIN_VALUE));
+  } else {
+    rpm = rpm_filter.add((uint32_t)RPM_SENSOR_MAX_VALUE);    
   }
   publish_sensors_state(distanceCm, rpm);
   sensor_controler_trigger();
