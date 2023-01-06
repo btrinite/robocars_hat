@@ -238,6 +238,7 @@ void _update_alarm(unsigned char alarm) {
 void led_controler_set_alarm(unsigned char alarmId) {
   _alarm = _alarm | (unsigned char)(1<<alarmId);
   _update_alarm(_alarm);
+  publish_alarm(alarmId);
 }
 
 void led_controler_reset_alarm(unsigned char alarmId) {

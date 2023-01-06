@@ -34,7 +34,7 @@
 #endif
 
 // New PWM input wiring
-// #define ALL_PWM_SIGNALS_ON_P2
+//#define ALL_PWM_SIGNALS_ON_P2
 
 
 //=========================================
@@ -124,8 +124,9 @@ unsigned int PWM_in_steering_idle = 0;
 // Simple GPIO Output
 #ifndef ALL_PWM_SIGNALS_ON_P2
 #define USTriggerPin          3
+#else
 #define USTriggerPin          8 //instead of 3
-#else#endif
+#endif
 
 // Other sizing
 #ifdef EXTRA_LED

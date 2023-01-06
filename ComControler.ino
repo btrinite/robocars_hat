@@ -105,6 +105,7 @@ void com_controler_update() {
 #define TX_MSG_RX_CHANNELS   1
 #define TX_MSG_SENSORS_STATE 2
 #define TX_MSG_CALIBRATION_STATE 3
+#define TX_MSG_ALARM 4
 
 //received message type
 #define RX_MSG_DRIVE_CHANNELS   1
@@ -155,6 +156,14 @@ void publish_calibration_state (unsigned int throttleIdle, unsigned int steering
   }
 }
 
+void publish_alarm (unsigned int alarmId) {
+
+  int fit = snprintf (buff, sizeof(buff), "%d,%d\r\n", TX_MSG_ALARM, alarmId);
+  if (fit > 0 and fit < sizeof(buff)) {
+    publish_buff(buff);
+  }
+}
+
 String getValue(String data, char separator, int index)
 {
   int found = 0;
@@ -179,8 +188,8 @@ void com_controler_setup() {
   _com_controler_status = 1;
 }
 
-bool valid_pwm_value(int value) {
-  if (value >=1000 and value <=2000) return true; else return false;
+int validate_pwm_value(int value) {
+  return min(max(value,1000),2000);
 }
 
 String inData;
@@ -203,7 +212,9 @@ void serialEvent() {
         case RX_MSG_DRIVE_CHANNELS:
           int throttle = getValue(inData, ',', 1).toInt();
           int steering = getValue(inData, ',', 2).toInt();
-          if (valid_pwm_value(throttle) and valid_pwm_value(steering) and !passthrough) {
+          if (!passthrough) {
+            throttle=validate_pwm_value(throttle);
+            steering=validate_pwm_value(steering);            
             pwmdriver_set_throttle_output (throttle);
             pwmdriver_set_steering_output (steering);
           }
