@@ -106,6 +106,7 @@ void com_controler_update() {
 #define TX_MSG_SENSORS_STATE 2
 #define TX_MSG_CALIBRATION_STATE 3
 #define TX_MSG_ALARM 4
+#define TX_MSG_DEBUG 9
 
 //received message type
 #define RX_MSG_DRIVE_CHANNELS   1
@@ -164,6 +165,13 @@ void publish_alarm (unsigned int alarmId) {
   }
 }
 
+void publish_debug (char * errorMsg, int param) {
+  int fit = snprintf (buff, sizeof(buff), "%d,%s (%d)\r\n", TX_MSG_DEBUG, errorMsg, param);
+  if (fit > 0 and fit < sizeof(buff)) {
+    publish_buff(buff);
+  }
+}
+
 String getValue(String data, char separator, int index)
 {
   int found = 0;
@@ -205,18 +213,20 @@ void serialEvent() {
     // Process message when new line character is recieved
     if (recieved == '\n')
     { 
-      Serial.println("Got msg...");
-      Serial.println(inData);
       unsigned char msgType = getValue(inData, ',', 0).toInt();
       switch (msgType) {
         case RX_MSG_DRIVE_CHANNELS:
-          int throttle = getValue(inData, ',', 1).toInt();
-          int steering = getValue(inData, ',', 2).toInt();
-          if (!passthrough) {
-            throttle=validate_pwm_value(throttle);
-            steering=validate_pwm_value(steering);            
-            pwmdriver_set_throttle_output (throttle);
-            pwmdriver_set_steering_output (steering);
+          if (inData.length()==12) {
+            int throttle = getValue(inData, ',', 1).toInt();
+            int steering = getValue(inData, ',', 2).toInt();
+            if (!passthrough) {
+              throttle=validate_pwm_value(throttle);
+              steering=validate_pwm_value(steering);            
+              pwmdriver_set_throttle_output (throttle);
+              pwmdriver_set_steering_output (steering);
+            }
+          } else {
+            publish_debug ("Got unexpected RX_MSG_DRIVE_CHANNELS msg : wrong size", inData.length());
           }
           break;
       }
