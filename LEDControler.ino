@@ -195,13 +195,19 @@ void _update_alarm(unsigned char alarm) {
     #ifdef EXTRA_LED
     extraLedUpdate (EXTRA_LED_ALARM_BATTERY_LOW);
     #endif
-    _setControlLed (255,0,0,0xafaf);    
+    _setControlLed (255,0,0,0xaaaa);    
   
   }else if (alarm & (unsigned char )(1<<LED_CTRL_ALARM_STARTUP)) {
     #ifdef EXTRA_LED
     extraLedUpdate (EXTRA_LED_ALARM_STARTUP);
     #endif
     _setControlLed (0xff,0x7f,0,0xaaaa);    
+
+  }else if (alarm & (unsigned char )(1<<LED_CTRL_ALARM_PDOWN_PWOFF)) {
+    _setControlLed (0xff,0x0,0,0xffff);    
+  
+  }else if (alarm & (unsigned char )(1<<LED_CTRL_ALARM_PDOWN_REQ)) {
+    _setControlLed (0xff,0x0,0x0,0xa000);    
   
   }else if (alarm & (unsigned char )(1<<LED_CTRL_ALARM_RX_LOSS)) {
     #ifdef EXTRA_LED

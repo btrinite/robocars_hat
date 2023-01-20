@@ -4,7 +4,6 @@
 // - Configure PWM Library
 //=========================================
 
-
 //=========================================
 // Features 
 //=========================================
@@ -26,6 +25,17 @@
 //#define AUX2_IGNORE_RC_STATE
 //#define AUX2_PASSTHROUGH 
 
+//#define USE_US_SENSOR
+
+#define USE_SBCPWCTRL
+
+// New PWM input wiring
+#define ALL_PWM_SIGNALS_ON_P2
+
+//=========================================
+// Implem option 
+//=========================================
+
 // micros() as 4us resolution, while this timer2 lib provides 0.5us
 #define USE_TIMER2_COUNTER
 
@@ -33,8 +43,6 @@
 #include <eRCaGuy_Timer2_Counter.h>
 #endif
 
-// New PWM input wiring
-//#define ALL_PWM_SIGNALS_ON_P2
 
 
 //=========================================
@@ -67,12 +75,21 @@
 
 #endif
 
+#ifdef Use_SimpleSerial
+
+//#define SERIAL_BAUD 1000000
+#define SERIAL_BAUD 250000
+
+#endif
+
 // define Alarm
 #define LED_CTRL_ALARM_BATTERY_LOW  0 // Means that battery voltage is low (Red inversed 2 flash blinking each half second)
 #define LED_CTRL_ALARM_STARTUP      1 // Means that Arduino just started/restarted (Orange blinking fast)
-#define LED_CTRL_ALARM_RX_LOSS      2 // Means PCM RX Signal not detected/loss (Green blinking fast)
-#define LED_CTRL_ALARM_LINK_LOSS    3 // Means ROS not connected/disconnected (White blinking fast)
-#define LED_CTRL_ALARM_DRIVE_LOSS   4 // Means no PWM order received, failsafe (Blue blinking fast)
+#define LED_CTRL_ALARM_PDOWN_PWOFF  2
+#define LED_CTRL_ALARM_PDOWN_REQ    3
+#define LED_CTRL_ALARM_RX_LOSS      4 // Means PCM RX Signal not detected/loss (Green blinking fast)
+#define LED_CTRL_ALARM_LINK_LOSS    5 // Means ROS not connected/disconnected (White blinking fast)
+#define LED_CTRL_ALARM_DRIVE_LOSS   6 // Means no PWM order received, failsafe (Blue blinking fast)
 
 unsigned int PWM_in_throttle_idle = 0;
 unsigned int PWM_in_steering_idle = 0;
@@ -121,12 +138,18 @@ unsigned int PWM_in_steering_idle = 0;
 #define batteryCell2Pin       A2
 #define batteryVBatPin        A1
 
+#define debugPin              A5
+
 // Simple GPIO Output
 #ifndef ALL_PWM_SIGNALS_ON_P2
 #define USTriggerPin          3
 #else
 #define USTriggerPin          8 //instead of 3
 #endif
+
+#define SwOffButtonPin        12 // was A2, mistake
+#define SbcPwMonitorPin       A3
+#define SbcPwOffTriger        11
 
 // Other sizing
 #ifdef EXTRA_LED
@@ -162,8 +185,16 @@ bool detect_aux2_grounded () {
 }
 
 void setup (void) {
+
+  #ifdef USE_SBCPWCTRL
+  sbc_power_controler_setup();
+  #endif
+
   Serial.begin(115200);
   Serial.println ("Robocars Hat starting");
+
+  pinMode (debugPin, OUTPUT);
+  digitalWrite(debugPin, LOW);
 
   #ifdef USE_TIMER2_COUNTER
   timer2.setup();
@@ -216,7 +247,8 @@ void loop() {
       }
       //Task to be done at 1Hz
       if (_cnt%100 == 67) {
-        battery_watcher_update();  
+        battery_watcher_update(); 
+        sbc_power_controler_update(); 
       }
       //Task to be done at 10Hz
       if (_cnt%10 == 5) {

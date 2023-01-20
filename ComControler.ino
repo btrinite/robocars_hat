@@ -98,8 +98,6 @@ void com_controler_update() {
 // Communication based on simple stupid serial protocol
 #ifdef Use_SimpleSerial
 
-#define SERIAL_BAUD 921600
-
 // Sent message types
 #define TX_MSG_BAT_STATE     0
 #define TX_MSG_RX_CHANNELS   1
@@ -192,6 +190,7 @@ String getValue(String data, char separator, int index)
 void com_controler_setup() {
   Serial.begin(SERIAL_BAUD);
   Serial.setTimeout(5);
+  
   //Assume everything is OK by default
   _com_controler_status = 1;
 }
