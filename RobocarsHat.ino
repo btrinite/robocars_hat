@@ -27,10 +27,10 @@
 
 //#define USE_US_SENSOR
 
-#define USE_SBCPWCTRL
+// #define USE_SBCPWCTRL
 
 // New PWM input wiring
-#define ALL_PWM_SIGNALS_ON_P2
+// #define ALL_PWM_SIGNALS_ON_P2
 
 //=========================================
 // Implem option 
