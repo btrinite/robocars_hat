@@ -195,6 +195,10 @@ void com_controler_setup() {
   _com_controler_status = 1;
 }
 
+bool is_valid_pwm_value(int value) {
+  if (value >=980 and value <=2020) return true; else return false;
+}
+
 int validate_pwm_value(int value) {
   return min(max(value,1000),2000);
 }
@@ -218,7 +222,7 @@ void serialEvent() {
           if (inData.length()==12) {
             int throttle = getValue(inData, ',', 1).toInt();
             int steering = getValue(inData, ',', 2).toInt();
-            if (!passthrough) {
+          if (is_valid_pwm_value(throttle) and is_valid_pwm_value(steering) and !passthrough) {
               throttle=validate_pwm_value(throttle);
               steering=validate_pwm_value(steering);            
               pwmdriver_set_throttle_output (throttle);
