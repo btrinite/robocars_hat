@@ -251,7 +251,9 @@ void loop() {
       //Task to be done at 1Hz
       if (_cnt%100 == 67) {
         battery_watcher_update(); 
-        sbc_power_controler_update(); 
+        #ifdef USE_SBCPWCTRL
+        sbc_power_controler_update();
+        #endif
       }
       //Task to be done at 10Hz
       if (_cnt%10 == 5) {
