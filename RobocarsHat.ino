@@ -85,11 +85,14 @@
 // define Alarm
 #define LED_CTRL_ALARM_BATTERY_LOW  0 // Means that battery voltage is low (Red inversed 2 flash blinking each half second)
 #define LED_CTRL_ALARM_STARTUP      1 // Means that Arduino just started/restarted (Orange blinking fast)
-#define LED_CTRL_ALARM_PDOWN_PWOFF  2
-#define LED_CTRL_ALARM_PDOWN_REQ    3
+#define LED_CTRL_ALARM_PDOWN_PWOFF  2 // - (Red steady)
+#define LED_CTRL_ALARM_PDOWN_REQ    3 // - (Red blinking)
 #define LED_CTRL_ALARM_RX_LOSS      4 // Means PCM RX Signal not detected/loss (Green blinking fast)
 #define LED_CTRL_ALARM_LINK_LOSS    5 // Means ROS not connected/disconnected (White blinking fast)
 #define LED_CTRL_ALARM_DRIVE_LOSS   6 // Means no PWM order received, failsafe (Blue blinking fast)
+// Passthrough : Light Blue steady
+// Ignore RC state : Light Blue blinking
+// Ok : Light Blue steady
 
 unsigned int PWM_in_throttle_idle = 0;
 unsigned int PWM_in_steering_idle = 0;
@@ -248,7 +251,9 @@ void loop() {
       //Task to be done at 1Hz
       if (_cnt%100 == 67) {
         battery_watcher_update(); 
-        sbc_power_controler_update(); 
+        #ifdef USE_SBCPWCTRL
+        sbc_power_controler_update();
+        #endif
       }
       //Task to be done at 10Hz
       if (_cnt%10 == 5) {
