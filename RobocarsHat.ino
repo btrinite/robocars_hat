@@ -255,10 +255,13 @@ void loop() {
         sbc_power_controler_update();
         #endif
       }
+      //Task to be done at 5Hz
+      if (_cnt%20 == 7) {
+        pwmdriver_check_failsafe();
+      }
       //Task to be done at 10Hz
       if (_cnt%10 == 5) {
         led_controler_update();
-        pwmdriver_check_failsafe();
         pwm_sampler_check_failsafe();
         if (pwm_calibrated==1) {
           publish_calibration_state (PWM_in_throttle_idle, PWM_in_steering_idle);

@@ -1,5 +1,5 @@
 
-unsigned char _pwm_received = 0;
+unsigned int _pwm_received = 0;
 
 #ifdef Use_PWMServoLib
 
