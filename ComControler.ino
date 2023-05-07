@@ -108,6 +108,8 @@ void com_controler_update() {
 
 //received message type
 #define RX_MSG_DRIVE_CHANNELS   1
+#define RX_MSG_CONTROL_LED      2
+#define RX_MSG_ANIM_LED      3
 
 
 void publish_buff(char * buff)
@@ -205,6 +207,34 @@ int validate_pwm_value(int value) {
 
 String inData;
 
+void processDriveChannelMsg () {
+  if (inData.length()==12) {
+    int throttle = getValue(inData, ',', 1).toInt();
+    int steering = getValue(inData, ',', 2).toInt();
+  if (is_valid_pwm_value(throttle) and is_valid_pwm_value(steering) and !passthrough) {
+      throttle=validate_pwm_value(throttle);
+      steering=validate_pwm_value(steering);            
+      pwmdriver_set_throttle_output (throttle);
+      pwmdriver_set_steering_output (steering);
+    }
+  } else {
+    publish_debug ("Got unexpected RX_MSG_DRIVE_CHANNELS msg : wrong size", inData.length());
+  }
+}
+
+void processLedControlMsg() {
+  unsigned char led = getValue(inData, ',', 1).toInt();
+  unsigned char red = getValue(inData, ',', 2).toInt();
+  unsigned char green = getValue(inData, ',', 3).toInt();
+  unsigned char blue = getValue(inData, ',', 4).toInt();
+  unsigned int timing = getValue(inData, ',', 5).toInt();
+  led_controler_set_other_led (led, red, green, blue, timing);
+}
+
+void processLedAnimMsg() {
+  unsigned char anim = getValue(inData, ',', 1).toInt();
+}
+
 void serialEvent() {
   unsigned char chRead = 0;
   char recieved = 0;
@@ -219,18 +249,13 @@ void serialEvent() {
       unsigned char msgType = getValue(inData, ',', 0).toInt();
       switch (msgType) {
         case RX_MSG_DRIVE_CHANNELS:
-          if (inData.length()==12) {
-            int throttle = getValue(inData, ',', 1).toInt();
-            int steering = getValue(inData, ',', 2).toInt();
-          if (is_valid_pwm_value(throttle) and is_valid_pwm_value(steering) and !passthrough) {
-              throttle=validate_pwm_value(throttle);
-              steering=validate_pwm_value(steering);            
-              pwmdriver_set_throttle_output (throttle);
-              pwmdriver_set_steering_output (steering);
-            }
-          } else {
-            publish_debug ("Got unexpected RX_MSG_DRIVE_CHANNELS msg : wrong size", inData.length());
-          }
+          processDriveChannelMsg();
+          break;
+        case RX_MSG_CONTROL_LED:
+          processLedControlMsg();
+          break;
+        case RX_MSG_ANIM_LED:
+          processLedAnimMsg();
           break;
       }
       inData = ""; // Clear recieved buffer

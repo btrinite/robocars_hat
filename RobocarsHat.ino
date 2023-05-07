@@ -13,13 +13,13 @@
 #define Use_SimpleSerial
 
 // Delay startup to avoid conflict with host bootloader (u-boot for example)
-#define STARTUP_DELAYED
+//#define STARTUP_DELAYED
 
 // Implement failsafe protocol (unless you're sure) 
 #define IMPLEMENT_FAILSAFE
 
 // Implement extra led aninmation (could affect PWM Sampler precision)
-//#define EXTRA_LED
+//#define ANIM_LED
 
 // Aux2 grounded feature
 //#define AUX2_IGNORE_RC_STATE
@@ -154,12 +154,8 @@ unsigned int PWM_in_steering_idle = 0;
 #define SbcPwMonitorPin       A3
 #define SbcPwOffTriger        11
 
-// Other sizing
-#ifdef EXTRA_LED
-#define RGBLEDCount  7
-#else
-#define RGBLEDCount  1
-#endif
+// Other sizing (Built-in + 6 additional)
+#define RGBLEDCount  7 
 
 
 // Additional LEDs
@@ -193,6 +189,10 @@ void setup (void) {
   sbc_power_controler_setup();
   #endif
 
+  pinMode(0, INPUT);
+  digitalWrite(0, INPUT_PULLUP);
+  digitalWrite(0, LOW);
+   
   Serial.begin(115200);
   Serial.println ("Robocars Hat starting");
 
@@ -269,7 +269,7 @@ void loop() {
       }
       //Task to be done at 33Hz
       if (_cnt%3 == 2) {
-#ifdef EXTRA_LED
+#ifdef LOCAL_ANIM_ON_PILOT
         if (aux1In > 1600 && failsafe==0) {
           extraLedSparkle (0xaa,0xaa,0xaa,5);
         }

@@ -143,6 +143,8 @@ Needed dependencies :
 - ros [see rosserial for Arduino](http://wiki.ros.org/rosserial_arduino/Tutorials). The rosserial packaged used is a specific one, available [here](https://github.com/btrinite/rosserial). It features a macro allowing to change serial baud rate (see ROSSERIAL_BAUD)
 - PololuLedStrip library to control RGB WS2812B style LED, available [here](https://github.com/pololu/pololu-led-strip-arduino).
 - modified Arduino Servo library, available [here](https://github.com/btrinite/Servo). The change is about to reduce memory footprint. For that purpose, we have decreased SERVOS_PER_TIMER from 12 to 4 (src/Servo.h)
+- alternatively, PWMServo (https://github.com/PaulStoffregen/PWMServo)
+- MovingAverage by Pavel Slama (https://github.com/pilotak/MovingAverage)
 - micros() is replaced by a timer2 based lib providing better resolution, available [here](https://www.electricrcaircraftguy.com/2014/02/Timer2Counter-more-precise-Arduino-micros-function.html) 
 The PWM sampling part of the software is largely inspired from Kelvin Nelson work, available [here](https://create.arduino.cc/projecthub/kelvineyeone/read-pwm-decode-rc-receiver-input-and-apply-fail-safe-6b90eb)
 
